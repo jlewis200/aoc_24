@@ -8,6 +8,17 @@ def solve(reports):
 
 
 def valid(report):
+    valid_report = valid_raw(report)
+    idx = 0
+
+    while not valid_report and idx < len(report):
+        valid_report |= valid_raw(report[:idx] + report[idx + 1 :])
+        idx += 1
+
+    return valid_report
+
+
+def valid_raw(report):
     report = np.array(report)
     diff = report[1:] - report[:-1]
     safe_increasing = ((diff >= 1) & (diff <= 3)).sum() == diff.shape[0]
@@ -37,5 +48,5 @@ def main(filename, expected=None):
 
 
 if __name__ == "__main__":
-    main("test.txt", 2)
+    main("test.txt", 4)
     main("input.txt")
