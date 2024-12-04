@@ -10,11 +10,11 @@ def solve(board):
     count = 0
 
     for permutation in permuter(board):
-        print(permutation)
         count += len(re.findall("XMAS", permutation))
         count += len(re.findall("SAMX", permutation))
 
     return count
+
 
 def permuter(board):
     for row in board:
@@ -22,7 +22,7 @@ def permuter(board):
 
     for idx in range(board.shape[1]):
         yield "".join(element for element in board[:, idx])
-        
+
     for idx in range(-board.shape[1], board.shape[1]):
         yield "".join(element for element in np.diagonal(board, idx))
 
