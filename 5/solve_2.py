@@ -8,10 +8,10 @@ def solve(rules, pages):
 
 
 def sort_pages(rules, pages):
-    changed = True
+    for page in pages:
+        changed = True
 
-    while changed:
-        for page in pages:
+        while changed:
             changed = sort_page(rules, page)
 
     return pages
