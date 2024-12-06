@@ -37,24 +37,19 @@ class Coord:
 def solve(board):
     coord = Coord(*np.argwhere(board == "^")[0])
     board[coord.y, coord.x] = "."
-    positions = set((coord,))
+    positions = {coord}
 
-    for direction in directions_generator():
-        while True:
-            delta = get_delta(direction)
-            coord_ = coord + delta
+    for delta in delta_generator():
 
-            if not valid_coord(coord_, board):
-                return len(positions)
-
-            if obstruction_present(coord_, board):
-                break
-
-            coord = coord_
+        while not obstructed(coord + delta, board):
+            coord += delta
             positions.add(coord)
 
+            if not valid_coord(coord + delta, board):
+                return len(positions)
 
-def obstruction_present(coord, board):
+
+def obstructed(coord, board):
     return board[coord.y, coord.x] == "#"
 
 
@@ -62,28 +57,20 @@ def valid_coord(coord, board):
     return coord.x in range(board.shape[1]) and coord.y in range(board.shape[0])
 
 
-def get_delta(direction):
-    match direction:
-
-        case "u":
-            return Coord(-1, 0)
-
-        case "r":
-            return Coord(0, 1)
-        case "d":
-            return Coord(1, 0)
-        case "l":
-            return Coord(0, -1)
-
-
-def directions_generator():
-    directions = ["u", "r", "d", "l"]
-    directions = deque(directions)
+def delta_generator():
+    deltas = deque(
+        [
+            Coord(-1, 0),
+            Coord(0, 1),
+            Coord(1, 0),
+            Coord(0, -1),
+        ]
+    )
 
     while True:
-        direction = directions.popleft()
-        directions.append(direction)
-        yield direction
+        delta = deltas.popleft()
+        deltas.append(delta)
+        yield delta
 
 
 def parse(lines):
