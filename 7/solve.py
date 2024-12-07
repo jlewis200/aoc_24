@@ -30,11 +30,6 @@ def solve_equation(equation):
     return result if result in arg_0_set else 0
 
 
-def op_gen(arg_0, arg_1):
-    yield arg_0 + arg_1
-    yield arg_0 * arg_1
-
-
 def parse(lines):
     parsed = []
 
