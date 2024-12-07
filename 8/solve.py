@@ -6,14 +6,16 @@ import numpy as np
 import networkx as nx
 
 
-def solve(pairs):
+def solve(parsed):
     breakpoint()
 
 
 def parse(lines):
     parsed = []
+
     for line in lines:
-        parsed.append(line)
+        parsed.append(line) # do something more useful here
+    
     return parsed
 
 
