@@ -21,20 +21,20 @@ def get_harmonics(board, src, dst):
     harmonics = set()
 
     next_coord = src.copy()
-    while next_coord[0] in range(board.shape[0]) and next_coord[1] in range(
-        board.shape[1]
-    ):
+    while within_bounds(next_coord, board):
         harmonics.add(tuple(next_coord))
         next_coord -= delta
 
     next_coord = src.copy()
-    while next_coord[0] in range(board.shape[0]) and next_coord[1] in range(
-        board.shape[1]
-    ):
+    while within_bounds(next_coord, board):
         harmonics.add(tuple(next_coord))
         next_coord += delta
 
     return harmonics
+
+
+def within_bounds(coord, board):
+    return coord[0] in range(board.shape[0]) and coord[1] in range(board.shape[1])
 
 
 def parse(lines):
