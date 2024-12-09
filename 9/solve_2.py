@@ -24,6 +24,8 @@ def solve(files, freespaces):
                 file.index = freespace.index
                 freespace.length -= file.length
                 freespace.index += file.length
+                if freespace.length == 0:
+                    freespaces.remove(freespace)
                 break
 
     return get_checksum(files)
