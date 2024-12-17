@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 from re import fullmatch
-import numpy as np
 from collections import defaultdict
+import numpy as np
 
 
 def solve(list_0, list_1):
