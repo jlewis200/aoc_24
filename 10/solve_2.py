@@ -37,7 +37,7 @@ def solve(board):
     score = 0
 
     for coord in np.argwhere(board == 0):
-        terminals = set()
+        terminals = list()
         dfs(Coord(*coord), board, terminals)
         score += len(terminals)
 
@@ -46,7 +46,7 @@ def solve(board):
 
 def dfs(coord, board, terminals):
     if board[coord.y, coord.x] == 9:
-        terminals.add(coord)
+        terminals.append(coord)
         return
 
     for adjacency in adjacencies(coord, board):
@@ -92,5 +92,5 @@ def main(filename, expected=None):
 
 
 if __name__ == "__main__":
-    main("test_0.txt", 36)
+    main("test_0.txt", 81)
     main("input.txt")
