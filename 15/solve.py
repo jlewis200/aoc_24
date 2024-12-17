@@ -52,7 +52,7 @@ def solve(board, directions):
     robot = VectorTuple(*np.argwhere(board == "@"))
     animate = "ANIMATE" in environ
 
-    for idx, direction in enumerate(directions):
+    for direction in directions:
         robot = attempt_move(coords, direction, robot)
 
         if animate:
