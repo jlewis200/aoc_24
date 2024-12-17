@@ -236,27 +236,3 @@ class TestMiscellaneous(unittest.TestCase):
         self.assertTrue(IntegerSet((-1, 1), (2, 11)) > IntegerSet((0, 10)))
         self.assertFalse(IntegerSet((-1, 9)) > IntegerSet((0, 10)))
         self.assertFalse(IntegerSet((1, 11)) > IntegerSet((0, 10)))
-
-    def test_is_proper_subset(self):
-        """ """
-
-    def test_issuperset(self):
-        """ """
-
-    def test_is_proper_superset(self):
-        """ """
-
-    def test_union(self):
-        """ """
-
-    def test_intersection(self):
-        """ """
-
-    def test_difference(self):
-        """ """
-
-    def test_symmetric_difference(self):
-        """ """
-
-    def test_len(self):
-        """ """
