@@ -70,7 +70,43 @@ class CPU:
 
 
 def solve(cpu):
-    """ """
+    """
+    The program displays some cyclic behavior based on the value of register a.
+    The sequence of 8 digits repeats in the next higher position, but
+    duplicated by 8**power.
+
+    register a:  0	output:  [6]
+    register a:  1	output:  [7] <- 7 repeated 8**0 times
+    register a:  2	output:  [5]
+    register a:  3	output:  [6]
+    register a:  4	output:  [2]
+    register a:  5	output:  [3]
+    register a:  6	output:  [0]
+    register a:  7	output:  [1]
+    register a:  8	output:  [7, 7] <- 7 repeated 8**1 times
+    register a:  9	output:  [5, 7]
+    register a:  10	output:  [1, 7]
+    register a:  11	output:  [6, 7]
+    register a:  12	output:  [2, 7]
+    register a:  13	output:  [3, 7]
+    register a:  14	output:  [0, 7]
+    register a:  15	output:  [1, 7]
+    register a:  16	output:  [4, 5] <- 5 repeated 8**1 times
+    register a:  17	output:  [3, 5]
+    ...
+    register a:  64	output:  [6, 7, 7] <- 7 repeated 8**2 times
+    ...
+    register a:  512	output:  [6, 6, 7, 7] <- 7 repeated 8**3 times
+    ...
+
+    This essentially forms a base-8 number system.
+    register_a candidata: coefficient * 8**power
+
+    This is solved by iterating over the powers in reverse order, checking each
+    coefficient [0, 7], and carrying candidate coefficients forward to the next
+    round if the target digit of the output matches the target digit of the
+    program.
+    """
     powers = list(range(len(cpu.program) - 1, -1, -1))
     candidates = [[]]
 
@@ -80,7 +116,7 @@ def solve(cpu):
         for coefficients in candidates:
             for coefficient in range(8):
                 cpu_copy = deepcopy(cpu)
-                cpu_copy.a = expand(coefficients + [coefficient], powers)
+                cpu_copy.a = expand(powers, coefficients + [coefficient])
                 output = cpu_copy.run()
 
                 if validate_index(output, cpu.program, -idx):
@@ -88,9 +124,7 @@ def solve(cpu):
 
             candidates = next_candidates
 
-    return sum(
-        coefficient * (8**power) for power, coefficient in zip(powers, candidates[0])
-    )
+    return expand(powers, candidates[0])
 
 
 def validate_index(list_0, list_1, idx):
@@ -100,7 +134,7 @@ def validate_index(list_0, list_1, idx):
         return False
 
 
-def expand(coefficients, powers):
+def expand(powers, coefficients):
     total = 0
 
     for power, coefficient in zip(powers, coefficients):
