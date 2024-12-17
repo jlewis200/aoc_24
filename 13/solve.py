@@ -1,28 +1,56 @@
 #!/usr/bin/env python3
 
-import re
-import math
-import itertools
-import numpy as np
-import networkx as nx
+from re import search
+from z3 import *
 
 
-def solve(parsed):
-    breakpoint()
+def solve(games):
+    return sum(solve_game(game) for game in games)
 
 
-def parse(lines):
+def solve_game(game):
+    (dy_a, dx_a), (dy_b, dx_b), (target_y, target_x) = game
+
+    presses_a, presses_b = Ints("presses_a presses_b")
+
+    s = Solver()
+    s.add(presses_a <= 100)
+    s.add(presses_b <= 100)
+    s.add(dy_a * presses_a + dy_b * presses_b == target_y)
+    s.add(dx_a * presses_a + dx_b * presses_b == target_x)
+
+    if s.check() == sat:
+        model = s.model()
+        cost = model[presses_a].as_long() * 3 + model[presses_b].as_long()
+        return cost
+
+    return 0
+
+
+def parse(data):
     parsed = []
 
-    for line in lines:
-        parsed.append(line) # do something more useful here
-    
+    for game in data.split("\n\n"):
+        parsed.append(parse_game(game))
+
     return parsed
+
+
+def parse_game(game):
+    match_a = search("Button A: X(?P<dx>.+), Y(?P<dy>.+)", game)
+    match_b = search("Button B: X(?P<dx>.+), Y(?P<dy>.+)", game)
+    match_target = search("Prize: X=(?P<x>.+), Y=(?P<y>.+)", game)
+
+    button_a = int(match_a.group("dy")), int(match_a.group("dx"))
+    button_b = int(match_b.group("dy")), int(match_b.group("dx"))
+    target = int(match_target.group("y")), int(match_target.group("x"))
+
+    return button_a, button_b, target
 
 
 def read_file(filename):
     with open(filename, encoding="utf-8") as f_in:
-        return f_in.readlines()
+        return f_in.read()
 
 
 def main(filename, expected=None):
@@ -33,5 +61,5 @@ def main(filename, expected=None):
 
 
 if __name__ == "__main__":
-    main("test_0.txt", None)
+    main("test_0.txt", 480)
     main("input.txt")
