@@ -2,10 +2,6 @@
 Datastructures collection.
 """
 
-from itertools import chain
-from collections import deque
-from copy import deepcopy
-
 
 class VectorTuple(tuple):
     """
@@ -13,7 +9,7 @@ class VectorTuple(tuple):
     advantage that it's hashable.
     """
 
-    def __new__(self, *args):
+    def __new__(cls, *args):
         if len(args) == 1 and not isinstance(args[0], tuple):
             args = args[0]
         return tuple.__new__(VectorTuple, args)

@@ -5,35 +5,13 @@ Datastructures collection.
 from itertools import chain
 from collections import deque
 from copy import deepcopy
-from .interval import Interval
-
-
-class Range:
-
-    def __init__(self, start, stop=None):
-        if stop is None:
-            stop = start
-            start = 0
-
-        self.start = start
-        self.stop = stop
-
-    def __contains__(self, other):
-        return other >= self.start and other < self.stop
-
-    def __lt__(self, other):
-        return self.start < other.start
-
-    def __repr__(self):
-        return f"Range({self.start}, {self.stop})"
-
-
 from sortedcontainers import SortedList
+from .interval import Interval
 
 
 class IntegerSet:
     """
-    Set of integers with a sparse implementaton.  This is suitable for sets
+    Set of integers with a sparse implementation.  This is suitable for sets
     with a large number of contiguous integers.
     """
 
@@ -134,6 +112,9 @@ class IntegerSet:
         return self
 
     def __contains__(self, other):
+        """
+        Does self contain other?
+        """
         for interval in self.intervals:
             if other in interval:
                 return True
@@ -141,21 +122,39 @@ class IntegerSet:
         return False
 
     def __le__(self, other):
+        """
+        Return is self a subset of other.
+        """
         return len(self) == len(self & other)
 
     def __lt__(self, other):
+        """
+        Return is self a proper subset of other.
+        """
         return self <= other and self != other
 
     def __ge__(self, other):
+        """
+        Return is self a superset of other.
+        """
         return len(other) == len(other & self)
 
     def __gt__(self, other):
+        """
+        Return is self a proper superset of other.
+        """
         return self >= other and self != other
 
     def __len__(self):
+        """
+        Return number of elements in the set.
+        """
         return sum(len(interval) for interval in self.intervals)
 
     def union(self, *others):
+        """
+        self | other_0 | other_1 | ...
+        """
         copy = deepcopy(self)
 
         for other in others:
@@ -164,6 +163,9 @@ class IntegerSet:
         return copy
 
     def intersection(self, *others):
+        """
+        self & other_0 & other_1 & ...
+        """
         copy = deepcopy(self)
 
         for other in others:
@@ -172,6 +174,9 @@ class IntegerSet:
         return copy
 
     def difference(self, *others):
+        """
+        self - other_0 - other_1 - ...
+        """
         copy = deepcopy(self)
 
         for other in others:
@@ -187,7 +192,7 @@ class IntegerSet:
 
     def isdisjoint(self, other):
         """
-        Retur true if self has no common elements with other.
+        Return true if self has no common elements with other.
         """
         return len(self & other) == 0
 

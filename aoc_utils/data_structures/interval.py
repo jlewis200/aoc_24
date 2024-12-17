@@ -2,11 +2,6 @@
 Datastructures collection.
 """
 
-from itertools import chain
-from collections import deque
-from copy import deepcopy
-from sortedcontainers import SortedList
-
 
 class Interval:
     """
@@ -74,8 +69,6 @@ class Interval:
         """
         if not self.overlap(other):
             return (self,)
-
-        intersection = self & other
 
         start = min(self.start, self.end)
         end = min(other.start, other.end) - 1
