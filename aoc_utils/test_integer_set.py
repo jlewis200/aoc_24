@@ -238,4 +238,7 @@ class TestMiscellaneous(unittest.TestCase):
         self.assertFalse(IntegerSet((1, 11)) > IntegerSet((0, 10)))
 
     def test_union(self):
-        pass
+        self.assertEqual(
+            IntegerSet((0, 10)).union(IntegerSet((20, 30)), IntegerSet((40, 50))),
+            IntegerSet((0, 10), (20, 30), (40, 50)),
+        )

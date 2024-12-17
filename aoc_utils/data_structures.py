@@ -407,6 +407,14 @@ class IntegerSet:
     def __len__(self):
         return sum(len(interval) for interval in self.intervals)
 
+    def union(self, *others):
+        copy = deepcopy(self)
+
+        for other in others:
+            copy |= other
+
+        return copy
+
     def issubset(self, other):
         return self <= other
 
