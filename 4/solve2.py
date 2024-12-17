@@ -7,6 +7,11 @@ import networkx as nx
 
 
 def solve(board):
+    """
+    Map M, A, S to 1, 10, 100.  Perform a 2-d convolution with every rotation
+    of the mask.  Increment if the sum of pointwise multiplication matches the
+    expected value.
+    """
     count = 0
     board_ = np.zeros_like(board, dtype=int)
 
@@ -15,70 +20,31 @@ def solve(board):
     board_[board == "S"] = 100
     board = board_
 
-    mask = np.array(
-        [
-            [1,  0, 100],
-            [0, 10,   0],
-            [1,  0, 100],
-        ]
-    )
-
     for y in range(board.shape[0] - 2):
+
         for x in range(board.shape[1] - 2):
-            print(y, x)
+
             for mask in mask_permuter():
-                res = board[y:y+3, x:x+3] * mask
-                if res.sum() == 20102:
+
+                res = board[y : y + 3, x : x + 3] * mask
+                if res.sum() == (mask**2).sum():
                     count += 1
-        
+
     return count
 
 
 def mask_permuter():
-    yield np.array(
+    mask = np.array(
         [
-            [1,  0, 100],
-            [0, 10,   0],
-            [1,  0, 100],
+            [1, 0, 100],
+            [0, 10, 0],
+            [1, 0, 100],
         ]
     )
 
-    yield np.array(
-        [
-            [100,  0, 100],
-            [0, 10,   0],
-            [1,  0, 1],
-        ]
-    )
-
-    yield np.array(
-        [
-            [1,  0, 1],
-            [0, 10,   0],
-            [100,  0, 100],
-        ]
-    )
-
-    yield np.array(
-        [
-            [100,  0, 1],
-            [0, 10,   0],
-            [100,  0, 1],
-        ]
-    )
-
-def permuter(board):
-    for row in board:
-        yield "".join(element for element in row)
-
-    for idx in range(board.shape[1]):
-        yield "".join(element for element in board[:, idx])
-        
-    for idx in range(-board.shape[1], board.shape[1]):
-        yield "".join(element for element in np.diagonal(board, idx))
-
-    for idx in range(-board.shape[1], board.shape[1]):
-        yield "".join(element for element in np.diagonal(np.rot90(board), idx))
+    for _ in range(4):
+        mask = np.rot90(mask)
+        yield mask
 
 
 def parse(lines):
