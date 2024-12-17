@@ -215,9 +215,9 @@ class TestMiscellaneous(unittest.TestCase):
         Validate superset.
         """
         self.assertTrue(IntegerSet((0, 10)).issuperset(IntegerSet((0, 10))))
-        self.assertTrue(IntegerSet((-1, 1), (2, 11)).issupersset(IntegerSet((0, 10))))
-        self.assertFalse(IntegerSet((-1, 9)).issubperset(IntegerSet((0, 10))))
-        self.assertFalse(IntegerSet((1, 11)).issupersset(IntegerSet((0, 10))))
+        self.assertTrue(IntegerSet((-1, 1), (2, 11)).issuperset(IntegerSet((0, 10))))
+        self.assertFalse(IntegerSet((-1, 9)).issuperset(IntegerSet((0, 10))))
+        self.assertFalse(IntegerSet((1, 11)).issuperset(IntegerSet((0, 10))))
 
     def test_ge(self):
         """
@@ -236,3 +236,6 @@ class TestMiscellaneous(unittest.TestCase):
         self.assertTrue(IntegerSet((-1, 1), (2, 11)) > IntegerSet((0, 10)))
         self.assertFalse(IntegerSet((-1, 9)) > IntegerSet((0, 10)))
         self.assertFalse(IntegerSet((1, 11)) > IntegerSet((0, 10)))
+
+    def test_union(self):
+        pass
