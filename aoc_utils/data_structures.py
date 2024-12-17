@@ -119,7 +119,7 @@ class Interval:
         start = min(values)
         end = max(values)
 
-        return Interval(*self.orient_endpoints(start, end))
+        return Interval(*self._orient_endpoints(start, end))
 
     def __and__(self, other):
         """
@@ -130,7 +130,7 @@ class Interval:
         values = self.start, self.end, other.start, other.end
         _, start, end, _ = sorted(values)
 
-        return Interval(*self.orient_endpoints(start, end))
+        return Interval(*self._orient_endpoints(start, end))
 
     def __sub__(self, other):
         """
@@ -147,17 +147,26 @@ class Interval:
 
         start = min(self.start, self.end)
         end = min(other.start, other.end) - 1
-        interval_0 = Interval(*self.orient_endpoints(start, end))
+        interval_0 = Interval(*self._orient_endpoints(start, end))
         interval_0.empty = start > end
 
         end = max(self.start, self.end)
         start = max(other.start, other.end) + 1
-        interval_1 = Interval(*self.orient_endpoints(start, end))
+        interval_1 = Interval(*self._orient_endpoints(start, end))
         interval_1.empty = start > end
 
         return tuple(
             interval for interval in (interval_0, interval_1) if not interval.empty
         )
+
+    def __len__(self):
+        return 1 + max(self.start, self.end) - min(self.start, self.end)
+
+    def __le__(self, other):
+        """
+        Check if other is a subset of self.
+        """
+        return len(self & other) == len(other)
 
     def __xor__(self, other):
         """
@@ -168,7 +177,27 @@ class Interval:
     def isdisjoint(self, other):
         return not self.overlap(other)
 
-    def orient_endpoints(self, start, end):
+    def union(self, *others):
+        for other in others:
+            self |= other
+        return self
+
+    def intersection(self, *other):
+        for other in others:
+            self &= other
+        return self
+
+    def difference(self, other):
+        for other in others:
+            self -= other
+        return self
+
+    def symmetric_difference(self, other):
+        for other in others:
+            self ^= other
+        return self
+
+    def _orient_endpoints(self, start, end):
         if not self.increasing():
             return self.swap(start, end)
         return start, end

@@ -260,3 +260,8 @@ class TestMiscellaneous(unittest.TestCase):
     def test_isdisjoint(self):
         self.assertTrue(Interval(0, 0).isdisjoint(Interval(1, 1)))
         self.assertFalse(Interval(0, 0).isdisjoint(Interval(0, 1)))
+
+    def test_len(self):
+        self.assertEqual(len(Interval(0, 0)), 1)
+        self.assertEqual(len(Interval(0, 9)), 10)
+        self.assertEqual(len(Interval(0, 99)), 100)
