@@ -1,33 +1,40 @@
 #!/usr/bin/env python3
 
 from re import fullmatch
+from collections import deque
 
 
 def solve(equations):
-    total = 0
-
-    for equation in equations:
-        total += solve_equation(equation)
-
-    return total
+    return sum(solve_equation(equation) for equation in equations)
 
 
 def solve_equation(equation):
-    result, args = equation
-    arg_0_set = {args.pop(0)}
+    """
+    Enumerate every possible sequence of operations.  Return the target result
+    if it's in the set of possible results.
+    """
+    result, right_operands = equation
+    left_operands = {right_operands.popleft()}
 
-    while len(args) > 0:
-        arg_0_set_ = set()
-        arg_1 = args.pop(0)
+    while len(right_operands) > 0:
+        left_operands = get_operation_results(left_operands, right_operands.popleft())
 
-        for arg_0 in arg_0_set:
-            arg_0_set_.add(arg_0 + arg_1)
-            arg_0_set_.add(arg_0 * arg_1)
-            arg_0_set_.add(int(f"{arg_0}{arg_1}"))
+    return result if result in left_operands else 0
 
-        arg_0_set = arg_0_set_
 
-    return result if result in arg_0_set else 0
+def get_operation_results(left_operands, right_operand):
+    """
+    Perform each operation between every left operand and the provided
+    right_operand.
+    """
+    next_left_operands = set()
+
+    for left_operand in left_operands:
+        next_left_operands.add(left_operand + right_operand)
+        next_left_operands.add(left_operand * right_operand)
+        next_left_operands.add(int(f"{left_operand}{right_operand}"))
+
+    return next_left_operands
 
 
 def parse(lines):
@@ -37,7 +44,7 @@ def parse(lines):
         match = fullmatch("(?P<result>\d+): (?P<operands>.*)", line.strip())
         result = int(match.group("result"))
         operands = match.group("operands")
-        operands = list(map(int, operands.split()))
+        operands = deque(map(int, operands.split()))
         parsed.append((result, operands))
 
     return parsed
