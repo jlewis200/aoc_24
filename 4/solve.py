@@ -6,17 +6,37 @@ import numpy as np
 import networkx as nx
 
 
-def solve(pairs):
-    breakpoint()
+def solve(board):
+    count = 0
+
+    for permutation in permuter(board):
+        print(permutation)
+        count += len(re.findall("XMAS", permutation))
+        count += len(re.findall("SAMX", permutation))
+
+    return count
+
+def permuter(board):
+    for row in board:
+        yield "".join(element for element in row)
+
+    for idx in range(board.shape[1]):
+        yield "".join(element for element in board[:, idx])
+        
+    for idx in range(-board.shape[1], board.shape[1]):
+        yield "".join(element for element in np.diagonal(board, idx))
+
+    for idx in range(-board.shape[1], board.shape[1]):
+        yield "".join(element for element in np.diagonal(np.rot90(board), idx))
 
 
 def parse(lines):
     parsed = []
 
     for line in lines:
-        parsed.append(line)
+        parsed.append(list(line.strip()))
 
-    return parsed
+    return np.array(parsed)
 
 
 def read_file(filename):
@@ -32,5 +52,5 @@ def main(filename, expected=None):
 
 
 if __name__ == "__main__":
-    main("test_0.txt", None)
+    main("test_0.txt", 18)
     main("input.txt")
