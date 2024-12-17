@@ -248,3 +248,23 @@ class TestMiscellaneous(unittest.TestCase):
             IntegerSet((0, 10)).intersection(IntegerSet((-10, 8)), IntegerSet((2, 20))),
             IntegerSet((2, 8)),
         )
+
+    def test_difference(self):
+        self.assertEqual(
+            IntegerSet((0, 10)).difference(IntegerSet((1, 2)), IntegerSet((8, 9))),
+            IntegerSet((0, 0), (3, 7), (10, 10)),
+        )
+
+    def test_symmetric_difference(self):
+        self.assertEqual(
+            IntegerSet((0, 10)) ^ IntegerSet((-5, 2), (4, 6), (8, 15)),
+            IntegerSet((-5, -1), (3, 3), (7, 7), (11, 15)),
+        )
+
+    def test_copy(self):
+        set_0 = IntegerSet((0, 10))
+        set_1 = set_0.copy()
+        self.assertEqual(set_0, set_1)
+        self.assertNotEqual(id(set_0), id(set_1))
+        set_0 |= IntegerSet((10, 11))
+        self.assertNotEqual(set_0, set_1)

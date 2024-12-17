@@ -423,6 +423,17 @@ class IntegerSet:
 
         return copy
 
+    def difference(self, *others):
+        copy = deepcopy(self)
+
+        for other in others:
+            copy -= other
+
+        return copy
+
+    def symmetric_difference(self, other):
+        return self ^ other
+
     def issubset(self, other):
         return self <= other
 
@@ -517,3 +528,6 @@ class IntegerSet:
 
         new_intervals.extend(intervals)
         self.intervals = SortedList(new_intervals, key=self._interval_sort_function)
+
+    def copy(self):
+        return deepcopy(self)
