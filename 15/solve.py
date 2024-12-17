@@ -15,8 +15,8 @@ def parse(lines):
     parsed = []
 
     for line in lines:
-        parsed.append(line) # do something more useful here
-    
+        parsed.append(line)  # do something more useful here
+
     return parsed
 
 
