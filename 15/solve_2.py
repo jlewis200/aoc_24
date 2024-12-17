@@ -48,12 +48,12 @@ class Wall:
         return hash(self.coord)
 
 
-def solve(board, moves):
+def solve(board, directions):
     coords = get_coords(board)
     robot = VectorTuple(*np.argwhere(board == "@"))
     animate = "ANIMATE" in environ
 
-    for idx, direction in enumerate(moves):
+    for idx, direction in enumerate(directions):
         robot = attempt_move(coords, direction, robot)
 
         if animate:
@@ -190,19 +190,14 @@ def board_str(board):
     Return the string representation of a numpy array where each element can be
     represented as a single character.
     """
-    string = ""
-    for row in board:
-        for col in row:
-            string += f"{col}"
-        string += "\n"
-    return string
+    return "\n".join("".join(row) for row in board)
 
 
 def parse(data):
     board = []
-    moves = []
+    directions = []
 
-    board_data, moves_data = data.split("\n\n")
+    board_data, directions_data = data.split("\n\n")
 
     for line in board_data.split("\n"):
         expanded_line = []
@@ -218,9 +213,9 @@ def parse(data):
 
         board.append(expanded_line)
 
-    moves = list(moves_data.replace("\n", ""))
+    directions = list(directions_data.replace("\n", ""))
 
-    return np.array(board), moves
+    return np.array(board), directions
 
 
 def read_file(filename):
