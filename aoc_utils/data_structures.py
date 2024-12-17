@@ -254,3 +254,37 @@ class Interval:
     @staticmethod
     def swap(value_0, value_1):
         return value_1, value_0
+
+
+class Range:
+
+    def __init__(self, start, stop=None):
+        if stop is None:
+            stop = start
+            start = 0
+
+        self.start = start
+        self.stop = stop
+
+    def __contains__(self, other):
+        return other >= self.start and other < self.stop
+
+    def __lt__(self, other):
+        return self.start < other.start
+
+    def __repr__(self):
+        return f"Range({self.start}, {self.stop})"
+
+
+class IntegerSet:
+    """
+    Set of integers with a sparse implementaton.  This is suitable for sets
+    with a large number of contiguous integers.
+    """
+
+    def __init__(self, ranges):
+        self.ranges = [Range(*range_) for range_ in ranges]
+        self.ranges = sorted(self.ranges)
+
+    def __repr__(self):
+        return "IntegerSet(" + ", ".join(str(range_) for range_ in self.ranges) + ")"
