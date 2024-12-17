@@ -150,10 +150,29 @@ class TestSymmetricDifference(unittest.TestCase):
 class TestMiscellaneous(unittest.TestCase):
 
     def test_hash(self):
-        """ """
+        """
+        Ensure identical objects with different id are equal
+        """
+        set_0 = IntegerSet((0, 10), (20, 30))
+        set_1 = IntegerSet((0, 10), (20, 30))
+        id_0 = id(set_0)
+        id_1 = id(set_1)
+        self.assertEqual(set_0, set_1)
+        self.assertNotEqual(id_0, id_1)
 
     def test_contains(self):
-        """ """
+        """
+        Ensure each set is tested for the supplied element.
+        """
+        set_0 = IntegerSet((0, 10), (20, 30))
+        self.assertIn(0, set_0)
+        self.assertIn(10, set_0)
+        self.assertIn(20, set_0)
+        self.assertIn(30, set_0)
+        self.assertNotIn(-1, set_0)
+        self.assertNotIn(11, set_0)
+        self.assertNotIn(19, set_0)
+        self.assertNotIn(31, set_0)
 
     def test_isdisjoint(self):
         """ """
