@@ -187,19 +187,28 @@ class TestMiscellaneous(unittest.TestCase):
         """
         Validate issubset.
         """
-        self.assertTrue(IntegerSet((0, 10)) <= IntegerSet((0, 10)))
-        self.assertTrue(IntegerSet((0, 1), (9, 10)) <= IntegerSet((0, 10)))
-        self.assertFalse(IntegerSet((-1, -1), (9, 10)) <= IntegerSet((0, 10)))
-        self.assertFalse(IntegerSet((0, 1), (11, 11)) <= IntegerSet((0, 10)))
+        self.assertTrue(IntegerSet((0, 10)).issubset(IntegerSet((0, 10))))
+        self.assertTrue(IntegerSet((0, 1), (9, 10)).issubset(IntegerSet((0, 10))))
+        self.assertFalse(IntegerSet((-1, -1), (9, 10)).issubset(IntegerSet((0, 10))))
+        self.assertFalse(IntegerSet((0, 1), (11, 11)).issubset(IntegerSet((0, 10))))
 
     def test_le(self):
         """
         Validate __le__.
         """
-        self.assertTrue(IntegerSet((0, 10)).issubset(IntegerSet((0, 10))))
-        self.assertTrue(IntegerSet((0, 1), (9, 10)).issubset(IntegerSet((0, 10))))
-        self.assertFalse(IntegerSet((-1, -1), (9, 10)).issubset(IntegerSet((0, 10))))
-        self.assertFalse(IntegerSet((0, 1), (11, 11)).issubset(IntegerSet((0, 10))))
+        self.assertTrue(IntegerSet((0, 10)) <= IntegerSet((0, 10)))
+        self.assertTrue(IntegerSet((0, 1), (9, 10)) <= IntegerSet((0, 10)))
+        self.assertFalse(IntegerSet((-1, -1), (9, 10)) <= IntegerSet((0, 10)))
+        self.assertFalse(IntegerSet((0, 1), (11, 11)) <= IntegerSet((0, 10)))
+
+    def test_lt(self):
+        """
+        Validate __lt__.
+        """
+        self.assertFalse(IntegerSet((0, 10)) < IntegerSet((0, 10)))
+        self.assertTrue(IntegerSet((0, 1), (9, 10)) < IntegerSet((0, 10)))
+        self.assertFalse(IntegerSet((-1, -1), (9, 10)) < IntegerSet((0, 10)))
+        self.assertFalse(IntegerSet((0, 1), (11, 11)) < IntegerSet((0, 10)))
 
     def test_is_proper_subset(self):
         """ """

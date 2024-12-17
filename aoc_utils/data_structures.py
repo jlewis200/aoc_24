@@ -395,6 +395,9 @@ class IntegerSet:
     def __le__(self, other):
         return len(self) == len(self & other)
 
+    def __lt__(self, other):
+        return self <= other and self != other
+
     def __len__(self):
         return sum(len(interval) for interval in self.intervals)
 
