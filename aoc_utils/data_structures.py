@@ -398,6 +398,12 @@ class IntegerSet:
     def __lt__(self, other):
         return self <= other and self != other
 
+    def __ge__(self, other):
+        return len(other) == len(other & self)
+
+    def __gt__(self, other):
+        return self >= other and self != other
+
     def __len__(self):
         return sum(len(interval) for interval in self.intervals)
 
@@ -409,6 +415,9 @@ class IntegerSet:
         Retur true if self has no common elements with other.
         """
         return len(self & other) == 0
+
+    def issuperset(self, other):
+        return self >= other
 
     def generate_greater(self, interval_1, idx=None):
         """

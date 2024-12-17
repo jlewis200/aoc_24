@@ -194,7 +194,7 @@ class TestMiscellaneous(unittest.TestCase):
 
     def test_le(self):
         """
-        Validate __le__.
+        Validate __le__ (subset).
         """
         self.assertTrue(IntegerSet((0, 10)) <= IntegerSet((0, 10)))
         self.assertTrue(IntegerSet((0, 1), (9, 10)) <= IntegerSet((0, 10)))
@@ -203,12 +203,39 @@ class TestMiscellaneous(unittest.TestCase):
 
     def test_lt(self):
         """
-        Validate __lt__.
+        Validate __lt__ (proper subset).
         """
         self.assertFalse(IntegerSet((0, 10)) < IntegerSet((0, 10)))
         self.assertTrue(IntegerSet((0, 1), (9, 10)) < IntegerSet((0, 10)))
         self.assertFalse(IntegerSet((-1, -1), (9, 10)) < IntegerSet((0, 10)))
         self.assertFalse(IntegerSet((0, 1), (11, 11)) < IntegerSet((0, 10)))
+
+    def test_issuperset(self):
+        """
+        Validate superset.
+        """
+        self.assertTrue(IntegerSet((0, 10)).issuperset(IntegerSet((0, 10))))
+        self.assertTrue(IntegerSet((-1, 1), (2, 11)).issupersset(IntegerSet((0, 10))))
+        self.assertFalse(IntegerSet((-1, 9)).issubperset(IntegerSet((0, 10))))
+        self.assertFalse(IntegerSet((1, 11)).issupersset(IntegerSet((0, 10))))
+
+    def test_ge(self):
+        """
+        Validate __ge__ (superset).
+        """
+        self.assertTrue(IntegerSet((0, 10)) >= IntegerSet((0, 10)))
+        self.assertTrue(IntegerSet((-1, 1), (2, 11)) >= IntegerSet((0, 10)))
+        self.assertFalse(IntegerSet((-1, 9)) >= IntegerSet((0, 10)))
+        self.assertFalse(IntegerSet((1, 11)) >= IntegerSet((0, 10)))
+
+    def test_gt(self):
+        """
+        Validate __gt__ (proper superset).
+        """
+        self.assertFalse(IntegerSet((0, 10)) > IntegerSet((0, 10)))
+        self.assertTrue(IntegerSet((-1, 1), (2, 11)) > IntegerSet((0, 10)))
+        self.assertFalse(IntegerSet((-1, 9)) > IntegerSet((0, 10)))
+        self.assertFalse(IntegerSet((1, 11)) > IntegerSet((0, 10)))
 
     def test_is_proper_subset(self):
         """ """
