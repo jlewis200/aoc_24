@@ -37,7 +37,6 @@ class VectorTuple(tuple):
         return all(element in range_ for element, range_ in zip(self, ranges))
 
 
-
 def solve(board):
     score = 0
 
