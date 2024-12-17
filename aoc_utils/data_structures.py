@@ -392,15 +392,20 @@ class IntegerSet:
 
         return False
 
+    def __le__(self, other):
+        return len(self) == len(self & other)
+
+    def __len__(self):
+        return sum(len(interval) for interval in self.intervals)
+
+    def issubset(self, other):
+        return self <= other
+
     def isdisjoint(self, other):
         """
         Retur true if self has no common elements with other.
         """
-        for other_interval in other.intervals:
-            for interval in self.generate_overlaps(other_interval):
-                return False
-
-        return True
+        return len(self & other) == 0
 
     def generate_greater(self, interval_1, idx=None):
         """
