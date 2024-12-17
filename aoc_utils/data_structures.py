@@ -164,9 +164,27 @@ class Interval:
 
     def __le__(self, other):
         """
-        Check if other is a subset of self.
+        Check if self is a subset of other.
+        """
+        return len(self & other) == len(self)
+
+    def __lt__(self, other):
+        """
+        Check if is a proper subser of other.
+        """
+        return self != other and self <= other
+
+    def __ge__(self, other):
+        """
+        Check if self is a superset of other.
         """
         return len(self & other) == len(other)
+
+    def __gt__(self, other):
+        """
+        Check if is a proper superset of other.
+        """
+        return self != other and self >= other
 
     def __xor__(self, other):
         """
@@ -177,25 +195,37 @@ class Interval:
     def isdisjoint(self, other):
         return not self.overlap(other)
 
+    def issubset(self, other):
+        return self <= other
+
+    def issuperset(self, other):
+        return self >= other
+
     def union(self, *others):
         for other in others:
             self |= other
         return self
 
-    def intersection(self, *other):
+    def intersection(self, *others):
         for other in others:
             self &= other
         return self
 
-    def difference(self, other):
+    def difference(self, *others):
+        left_operands = [self]
+
         for other in others:
-            self -= other
-        return self
+            next_left_operands = []
+
+            for left_operand in left_operands:
+                next_left_operands.extend(left_operand - other)
+
+            left_operands = next_left_operands
+
+        return tuple(left_operands)
 
     def symmetric_difference(self, other):
-        for other in others:
-            self ^= other
-        return self
+        return self ^ other
 
     def _orient_endpoints(self, start, end):
         if not self.increasing():

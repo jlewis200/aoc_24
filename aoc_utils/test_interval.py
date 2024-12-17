@@ -261,6 +261,48 @@ class TestMiscellaneous(unittest.TestCase):
         self.assertTrue(Interval(0, 0).isdisjoint(Interval(1, 1)))
         self.assertFalse(Interval(0, 0).isdisjoint(Interval(0, 1)))
 
+    def test_issubset(self):
+        self.assertTrue(Interval(0, 10) <= Interval(0, 10))
+        self.assertFalse(Interval(-1, 10) <= Interval(0, 10))
+        self.assertFalse(Interval(0, 11) <= Interval(0, 10))
+        self.assertTrue(Interval(0, 10).issubset(Interval(0, 10)))
+
+    def test_is_proper_subset(self):
+        self.assertTrue(Interval(1, 10) < Interval(0, 10))
+        self.assertTrue(Interval(0, 9) < Interval(0, 10))
+        self.assertFalse(Interval(0, 10) < Interval(0, 10))
+        self.assertFalse(Interval(-1, 10) < Interval(0, 10))
+        self.assertFalse(Interval(0, 11) < Interval(0, 10))
+
+    def test_issuperset(self):
+        self.assertTrue(Interval(0, 10) >= Interval(0, 10))
+        self.assertFalse(Interval(1, 10) >= Interval(0, 10))
+        self.assertFalse(Interval(0, 9) >= Interval(0, 10))
+        self.assertTrue(Interval(0, 10).issuperset(Interval(0, 10)))
+
+    def test_is_proper_superset(self):
+        self.assertTrue(Interval(0, 11) > Interval(0, 10))
+        self.assertTrue(Interval(-1, 10) > Interval(0, 10))
+        self.assertFalse(Interval(0, 10) > Interval(0, 10))
+        self.assertFalse(Interval(1, 10) > Interval(0, 10))
+        self.assertFalse(Interval(0, 9) > Interval(0, 10))
+
+    def test_union(self):
+        actual = Interval(0, 1).union(Interval(1, 2), Interval(2, 3))
+        self.assertEqual(actual, Interval(0, 3))
+
+    def test_intersection(self):
+        actual = Interval(0, 10).intersection(Interval(3, 9), Interval(1, 6))
+        self.assertEqual(actual, Interval(3, 6))
+
+    def test_difference(self):
+        actual = Interval(0, 10).difference(Interval(1, 2), Interval(8, 9))
+        self.assertEqual(actual, (Interval(0, 0), Interval(3, 7), Interval(10, 10)))
+
+    def test_symmetric_difference(self):
+        actual = Interval(0, 10).symmetric_difference(Interval(1, 9))
+        self.assertEqual(actual, (Interval(0, 0), Interval(10, 10)))
+
     def test_len(self):
         self.assertEqual(len(Interval(0, 0)), 1)
         self.assertEqual(len(Interval(0, 9)), 10)
