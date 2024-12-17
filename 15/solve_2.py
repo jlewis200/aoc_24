@@ -33,10 +33,11 @@ class VectorTuple(tuple):
 
 @dataclass
 class Box:
-    coord: VectorTuple
+    left: VectorTuple
+    right: VectorTuple
 
     def __hash__(self):
-        return hash(self.coord)
+        return hash(self.left) + hash(self.right)
 
 
 @dataclass
@@ -83,11 +84,14 @@ def move(coords, direction, robot):
     adjacent = gather_adjacent_boxes(coords, robot, delta)
 
     for box in adjacent:
-        coords.pop(box.coord)
+        coords.pop(box.left)
+        coords.pop(box.right)
 
     for box in adjacent:
-        box.coord += delta
-        coords[box.coord] = box
+        box.left += delta
+        box.right += delta
+        coords[box.left] = box
+        coords[box.right] = box
 
 
 def gather_adjacent_boxes(coords, robot, delta):
@@ -110,7 +114,7 @@ def gather_adjacent_boxes(coords, robot, delta):
 
         visited.add(position)
         adjacent.add(coords[position])
-        queue.append(coords[position].coord)
+        queue.extend((coords[position].left, coords[position].right))
 
     return adjacent
 
@@ -136,8 +140,8 @@ def get_gps(coords, robot):
     for item in set(coords.values()):
 
         if isinstance(item, Box):
-            item.coord *= VectorTuple(100, 1)
-            total += sum(tuple(item.coord))
+            item.left *= VectorTuple(100, 1)
+            total += sum(tuple(item.left))
 
     return total
 
@@ -152,10 +156,12 @@ def get_coords(board):
         wall = VectorTuple(wall)
         coords[wall] = Wall(wall)
 
-    for box in np.argwhere(board == "O"):
-        coord = VectorTuple(box)
-        box = Box(coord)
-        coords[coord] = box
+    for box in np.argwhere(board == "["):
+        left = VectorTuple(box)
+        right = VectorTuple(box + VectorTuple(0, 1))
+        box = Box(left, right)
+        coords[left] = box
+        coords[right] = box
 
     return coords
 
@@ -172,7 +178,8 @@ def construct_board(coords, robot):
             board[item.coord] = "#"
 
         else:
-            board[item.coord] = "O"
+            board[item.left] = "["
+            board[item.right] = "]"
 
     board[robot] = "@"
     return board
@@ -198,7 +205,18 @@ def parse(data):
     board_data, moves_data = data.split("\n\n")
 
     for line in board_data.split("\n"):
-        board.append(list(line.strip()))
+        expanded_line = []
+        for char in list(line.strip()):
+            if char == "#":
+                expanded_line.extend(["#", "#"])
+            if char == "O":
+                expanded_line.extend(["[", "]"])
+            if char == ".":
+                expanded_line.extend([".", "."])
+            if char == "@":
+                expanded_line.extend(["@", "."])
+
+        board.append(expanded_line)
 
     moves = list(moves_data.replace("\n", ""))
 
@@ -218,6 +236,5 @@ def main(filename, expected=None):
 
 
 if __name__ == "__main__":
-    main("test_0.txt", 2028)
-    main("test_1.txt", 10092)
+    main("test_1.txt", 9021)
     main("input.txt")
