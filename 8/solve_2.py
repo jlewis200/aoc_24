@@ -20,17 +20,19 @@ def get_harmonics(board, src, dst):
     delta = src - dst
     harmonics = set()
 
-    next_coord = dst.copy() - delta
-    if next_coord[0] in range(board.shape[0]) and next_coord[1] in range(
+    next_coord = src.copy()
+    while next_coord[0] in range(board.shape[0]) and next_coord[1] in range(
         board.shape[1]
     ):
         harmonics.add(tuple(next_coord))
+        next_coord -= delta
 
-    next_coord = src.copy() + delta
-    if next_coord[0] in range(board.shape[0]) and next_coord[1] in range(
+    next_coord = src.copy()
+    while next_coord[0] in range(board.shape[0]) and next_coord[1] in range(
         board.shape[1]
     ):
         harmonics.add(tuple(next_coord))
+        next_coord += delta
 
     return harmonics
 
@@ -57,5 +59,5 @@ def main(filename, expected=None):
 
 
 if __name__ == "__main__":
-    main("test_0.txt", 14)
+    main("test_0.txt", 34)
     main("input.txt")
