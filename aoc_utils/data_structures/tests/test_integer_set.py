@@ -1,5 +1,5 @@
 import unittest
-from .data_structures import IntegerSet
+from ..integer_set import IntegerSet
 
 
 class TestUnion(unittest.TestCase):

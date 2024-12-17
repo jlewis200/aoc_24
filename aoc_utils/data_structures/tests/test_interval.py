@@ -1,5 +1,5 @@
 import unittest
-from .data_structures import Interval
+from ..interval import Interval
 
 
 class TestUnion(unittest.TestCase):
