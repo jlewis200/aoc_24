@@ -392,6 +392,16 @@ class IntegerSet:
 
         return False
 
+    def isdisjoint(self, other):
+        """
+        Retur true if self has no common elements with other.
+        """
+        for other_interval in other.intervals:
+            for interval in self.generate_overlaps(other_interval):
+                return False
+
+        return True
+
     def generate_greater(self, interval_1, idx=None):
         """
         Yield overlapping intervals greater than the supplied interval.  Stop

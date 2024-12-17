@@ -175,7 +175,13 @@ class TestMiscellaneous(unittest.TestCase):
         self.assertNotIn(31, set_0)
 
     def test_isdisjoint(self):
-        """ """
+        """
+        Ensure isdisjoint return true if no common elements, and false if
+        common elements exist.
+        """
+        self.assertFalse(IntegerSet((0, 10)).isdisjoint(IntegerSet((0, 0))))
+        self.assertTrue(IntegerSet((0, 10)).isdisjoint(IntegerSet((-1, -1))))
+        self.assertTrue(IntegerSet((0, 10)).isdisjoint(IntegerSet((11, 11))))
 
     def test_issubset(self):
         """ """
