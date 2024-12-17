@@ -242,3 +242,9 @@ class TestMiscellaneous(unittest.TestCase):
             IntegerSet((0, 10)).union(IntegerSet((20, 30)), IntegerSet((40, 50))),
             IntegerSet((0, 10), (20, 30), (40, 50)),
         )
+
+    def test_intersection(self):
+        self.assertEqual(
+            IntegerSet((0, 10)).intersection(IntegerSet((-10, 8)), IntegerSet((2, 20))),
+            IntegerSet((2, 8)),
+        )

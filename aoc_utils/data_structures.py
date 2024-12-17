@@ -415,6 +415,14 @@ class IntegerSet:
 
         return copy
 
+    def intersection(self, *others):
+        copy = deepcopy(self)
+
+        for other in others:
+            copy &= other
+
+        return copy
+
     def issubset(self, other):
         return self <= other
 
