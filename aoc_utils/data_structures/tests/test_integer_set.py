@@ -257,7 +257,9 @@ class TestMiscellaneous(unittest.TestCase):
 
     def test_symmetric_difference(self):
         self.assertEqual(
-            IntegerSet((0, 10)) ^ IntegerSet((-5, 2), (4, 6), (8, 15)),
+            IntegerSet((0, 10)).symmetric_difference(
+                IntegerSet((-5, 2), (4, 6), (8, 15))
+            ),
             IntegerSet((-5, -1), (3, 3), (7, 7), (11, 15)),
         )
 
