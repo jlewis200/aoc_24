@@ -14,13 +14,10 @@ class VectorTuple(tuple):
     advantage that it's hashable.
     """
 
-    def __new__(cls, *args, cost=2**32):
+    def __new__(cls, *args):
         if len(args) == 1 and not isinstance(args[0], tuple):
             args = args[0]
         return tuple.__new__(VectorTuple, args)
-
-    def __init__(self, *args, cost=2**32):
-        self.cost = cost
 
     def __add__(self, other):
         return VectorTuple(
@@ -31,24 +28,6 @@ class VectorTuple(tuple):
     def __sub__(self, other):
         return VectorTuple(
             self_element - other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __mul__(self, other):
-        return VectorTuple(
-            self_element * other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __truediv__(self, other):
-        return VectorTuple(
-            self_element / other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __mod__(self, other):
-        return VectorTuple(
-            self_element % other_element
             for self_element, other_element in zip(self, other)
         )
 
@@ -69,20 +48,6 @@ class VectorTuple(tuple):
             if next_pos.within_range(range(board.shape[0]), range(board.shape[1])):
                 yield next_pos
 
-    def diagonals(self, board):
-        """
-        Generate NE, NW, SW, SE adjacencies.
-        """
-        for delta in (
-            VectorTuple(-1, 1),
-            VectorTuple(-1, -1),
-            VectorTuple(1, -1),
-            VectorTuple(1, 1),
-        ):
-            next_pos = self + delta
-            if next_pos.within_range(range(board.shape[0]), range(board.shape[1])):
-                yield next_pos
-
 
 def solve(board):
     print(board_str(board))
@@ -92,29 +57,33 @@ def solve(board):
 
 
 def bfs(board, position):
-    costs = np.full_like(board, 2**32, dtype=int)
-    costs[position] = 0
+    costs = {
+        VectorTuple(1, 0): np.full_like(board, 2**32, dtype=int),
+        VectorTuple(-1, 0): np.full_like(board, 2**32, dtype=int),
+        VectorTuple(0, 1): np.full_like(board, 2**32, dtype=int),
+        VectorTuple(0, -1): np.full_like(board, 2**32, dtype=int),
+    }
+    costs[VectorTuple(0, 1)][position] = 0
     queue = deque([(position, VectorTuple(0, 1))])
 
     while len(queue) > 0:
         position, delta = queue.popleft()
 
         for adjacency in position.orthogonals(board):
-
             if board[adjacency] == "#":
                 continue
 
             if adjacency - position == delta:
-                cost = costs[position] + 1
+                cost = costs[delta][position] + 1
             else:
-                cost = costs[position] + 1001
+                cost = costs[delta][position] + 1001
 
-            if costs[adjacency] > cost:
-                costs[adjacency] = cost
+            if costs[adjacency - position][adjacency] > cost:
+                costs[adjacency - position][adjacency] = cost
                 queue.append((adjacency, adjacency - position))
 
     end = VectorTuple(*np.argwhere(board == "E"))
-    return costs[end]
+    return np.array(list(costs.values()))[:, end[0], end[1]].min()
 
 
 def board_str(board):
