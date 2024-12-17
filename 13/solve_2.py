@@ -15,14 +15,13 @@ def solve_game(game):
 
     presses_a, presses_b = Ints("presses_a presses_b")
 
-    s = Solver()
-    s.add(dy_a * presses_a + dy_b * presses_b == target_y)
-    s.add(dx_a * presses_a + dx_b * presses_b == target_x)
+    solver = Solver()
+    solver.add(dy_a * presses_a + dy_b * presses_b == target_y)
+    solver.add(dx_a * presses_a + dx_b * presses_b == target_x)
 
-    if s.check() == sat:
-        model = s.model()
-        cost = model[presses_a].as_long() * 3 + model[presses_b].as_long()
-        return cost
+    if solver.check() == sat:
+        model = solver.model()
+        return model[presses_a].as_long() * 3 + model[presses_b].as_long()
 
     return 0
 
