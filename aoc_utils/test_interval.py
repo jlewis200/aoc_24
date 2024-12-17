@@ -244,3 +244,10 @@ class TestSymmetricDifference(unittest.TestCase):
         interval_1 = Interval(11, 20)
         actual = interval_0 ^ interval_1
         self.assertEqual(actual, (Interval(0, 10), Interval(11, 20)))
+
+
+class TestMiscellaneous(unittest.TestCase):
+
+    def test_hash(self):
+        self.assertEqual(hash(Interval(0, 1)), hash(Interval(0, 1)))
+        self.assertNotEqual(hash(Interval(0, 1)), hash(Interval(1, 0)))

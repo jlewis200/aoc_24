@@ -91,17 +91,18 @@ class Interval:
         self.end = end
         self.range = range(min(start, end), max(start, end) + 1)
         self.empty = False
-        self._hash = None
+        self._hash = hash((start, end))
 
     def __repr__(self):
         return str((self.start, self.end))
+
+    def __contains__(self, other):
+        return other in self.range
 
     def __eq__(self, other):
         return self.start == other.start and self.end == other.end
 
     def __hash__(self):
-        if self._hash is None:
-            self._hash = hash(tuple(self.start, self.end))
         return self._hash
 
     def __or__(self, other):
@@ -171,10 +172,10 @@ class Interval:
 
     def overlap(self, other):
         return (
-            self.start in other.range
-            or self.end in other.range
-            or other.start in self.range
-            or other.end in self.range
+            self.start in other
+            or self.end in other
+            or other.start in self
+            or other.end in self
         )
 
     def validate_overlap(self, other):
