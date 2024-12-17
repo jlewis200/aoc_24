@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from re import fullmatch
-import numpy as np
 
 
 def solve(equations):
@@ -29,11 +28,6 @@ def solve_equation(equation):
         arg_0_set = arg_0_set_
 
     return result if result in arg_0_set else 0
-
-
-def op_gen(arg_0, arg_1):
-    yield arg_0 + arg_1
-    yield arg_0 * arg_1
 
 
 def parse(lines):

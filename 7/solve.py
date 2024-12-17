@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from re import fullmatch
-import numpy as np
 
 
 def solve(equations):
