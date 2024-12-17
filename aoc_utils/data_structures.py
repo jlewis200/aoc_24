@@ -165,6 +165,9 @@ class Interval:
         """
         return (self - other) + (other - self)
 
+    def isdisjoint(self, other):
+        return not self.overlap(other)
+
     def orient_endpoints(self, start, end):
         if not self.increasing():
             return self.swap(start, end)

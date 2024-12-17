@@ -251,3 +251,12 @@ class TestMiscellaneous(unittest.TestCase):
     def test_hash(self):
         self.assertEqual(hash(Interval(0, 1)), hash(Interval(0, 1)))
         self.assertNotEqual(hash(Interval(0, 1)), hash(Interval(1, 0)))
+
+    def test_contains(self):
+        self.assertIn(0, Interval(0, 0))
+        self.assertNotIn(1, Interval(0, 0))
+        self.assertNotIn(-1, Interval(0, 0))
+
+    def test_isdisjoint(self):
+        self.assertTrue(Interval(0, 0).isdisjoint(Interval(1, 1)))
+        self.assertFalse(Interval(0, 0).isdisjoint(Interval(0, 1)))
