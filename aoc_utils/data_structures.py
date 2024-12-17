@@ -417,16 +417,12 @@ class IntegerSet:
 
         while idx < len(self.intervals):
 
-            try:
-                interval_0 = self.intervals[idx]
+            interval_0 = self.intervals[idx]
 
-                if interval_0.overlap(interval_1):
-                    overlaps.append(interval_0)
+            if interval_0.overlap(interval_1):
+                overlaps.append(interval_0)
 
-                else:
-                    break
-
-            except IndexError:
+            else:
                 break
 
             idx += 1
@@ -441,18 +437,14 @@ class IntegerSet:
         overlaps = deque()
 
         while idx > 0:
-            idx = max(idx - 1, 0)
+            idx -= 1
 
-            try:
-                interval_0 = self.intervals[idx]
+            interval_0 = self.intervals[idx]
 
-                if interval_0.overlap(interval_1):
-                    overlaps.append(interval_0)
+            if interval_0.overlap(interval_1):
+                overlaps.append(interval_0)
 
-                else:
-                    break
-
-            except IndexError:
+            else:
                 break
 
         yield from overlaps
