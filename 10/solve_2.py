@@ -3,34 +3,39 @@
 import numpy as np
 
 
-class Coord:
-
-    def __init__(self, y, x):
-        self.y = int(y)
-        self.x = int(x)
-        self._hash = None
+class VectorTuple(tuple):
+    """
+    This class replicates vectorized operations of numpy arrays, with the
+    advantage that it's hashable.
+    """
 
     def __add__(self, other):
-        return Coord(self.y + other.y, self.x + other.x)
+        return VectorTuple(
+            self_element + other_element
+            for self_element, other_element in zip(self, other)
+        )
 
     def __sub__(self, other):
-        return Coord(self.y - other.y, self.x - other.x)
+        return VectorTuple(
+            self_element - other_element
+            for self_element, other_element in zip(self, other)
+        )
 
     def __mul__(self, other):
-        return Coord(self.y * other, self.x * other)
+        return VectorTuple(
+            self_element * other_element
+            for self_element, other_element in zip(self, other)
+        )
 
-    def __hash__(self):
-        if self._hash is None:
-            self._hash = (1000003 * self.x) ^ self.y
-        return self._hash
+    def __truediv__(self, other):
+        return VectorTuple(
+            self_element / other_element
+            for self_element, other_element in zip(self, other)
+        )
 
-    def __eq__(self, other):
-        if not isinstance(other, Coord):
-            return False
-        return self.y == other.y and self.x == other.x
+    def within_range(self, *ranges):
+        return all(element in range_ for element, range_ in zip(self, ranges))
 
-    def __repr__(self):
-        return f"{self.y}\t{self.x}"
 
 
 def solve(board):
@@ -38,36 +43,32 @@ def solve(board):
 
     for coord in np.argwhere(board == 0):
         terminals = list()
-        dfs(Coord(*coord), board, terminals)
+        dfs(VectorTuple(coord), board, terminals)
         score += len(terminals)
 
     return score
 
 
 def dfs(coord, board, terminals):
-    if board[coord.y, coord.x] == 9:
+    if board[coord] == 9:
         terminals.append(coord)
         return
 
     for adjacency in adjacencies(coord, board):
-        if board[adjacency.y, adjacency.x] - board[coord.y, coord.x] == 1:
+        if board[adjacency] - board[coord] == 1:
             dfs(adjacency, board, terminals)
 
 
 def adjacencies(coord, board):
     for delta in (
-        Coord(1, 0),
-        Coord(-1, 0),
-        Coord(0, 1),
-        Coord(0, -1),
+        VectorTuple((1, 0)),
+        VectorTuple((-1, 0)),
+        VectorTuple((0, 1)),
+        VectorTuple((0, -1)),
     ):
         next_pos = coord + delta
-        if valid(next_pos, board):
+        if next_pos.within_range(range(board.shape[0]), range(board.shape[1])):
             yield next_pos
-
-
-def valid(coord, board):
-    return coord.y in range(board.shape[0]) and coord.x in range(board.shape[1])
 
 
 def parse(lines):
