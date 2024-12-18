@@ -277,3 +277,10 @@ class TestMiscellaneous(unittest.TestCase):
         set_0.update(IntegerSet((20, 30)), IntegerSet((30, 40)))
         self.assertEqual(set_0, IntegerSet((0, 10), (20, 40)))
         self.assertEqual(id(set_0), id_0)
+
+    def test_intersection_update(self):
+        set_0 = IntegerSet((0, 10))
+        id_0 = id(set_0)
+        set_0.intersection_update(IntegerSet((-10, 8)), IntegerSet((2, 20)))
+        self.assertEqual(set_0, IntegerSet((2, 8)))
+        self.assertEqual(id(set_0), id_0)
