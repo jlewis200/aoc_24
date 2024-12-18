@@ -293,3 +293,25 @@ class IntegerSet:
 
     def copy(self):
         return deepcopy(self)
+
+    def update(self, *others):
+        for other in others:
+            self |= other
+
+        return self
+
+    def intersection_update(self, *others):
+        for other in others:
+            self &= other
+
+        return self
+
+    def difference_update(self, *others):
+        for other in others:
+            self -= other
+
+        return self
+
+    def symmetric_difference_update(self, other):
+        self ^= other
+        return self

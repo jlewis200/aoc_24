@@ -270,3 +270,10 @@ class TestMiscellaneous(unittest.TestCase):
         self.assertNotEqual(id(set_0), id(set_1))
         set_0 |= IntegerSet((10, 11))
         self.assertNotEqual(set_0, set_1)
+
+    def test_update(self):
+        set_0 = IntegerSet((0, 10))
+        id_0 = id(set_0)
+        set_0.update(IntegerSet((20, 30)), IntegerSet((30, 40)))
+        self.assertEqual(set_0, IntegerSet((0, 10), (20, 40)))
+        self.assertEqual(id(set_0), id_0)
