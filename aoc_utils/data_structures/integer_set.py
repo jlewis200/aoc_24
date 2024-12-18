@@ -340,3 +340,7 @@ class IntegerSet:
 
     def clear(self):
         self.intervals.clear()
+
+    def __iter__(self):
+        for interval in self.intervals:
+            yield from range(interval.start, interval.end + 1)

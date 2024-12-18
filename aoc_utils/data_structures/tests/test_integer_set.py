@@ -341,3 +341,11 @@ class TestMiscellaneous(unittest.TestCase):
         set_0 = IntegerSet((0, 1))
         set_0.clear()
         self.assertEqual(set_0, IntegerSet())
+
+    def test_iter(self):
+        elements = set()
+
+        for element in IntegerSet((0, 2), (10, 12)):
+            elements.add(element)
+
+        self.assertEqual(elements, {0, 1, 2, 10, 11, 12})
