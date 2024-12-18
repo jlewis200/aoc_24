@@ -52,6 +52,8 @@ class IntegerSet:
 
             self.intervals.add(other_interval)
 
+        self.consolidate_intervals()
+
         return self
 
     def __and__(self, other):
@@ -315,3 +317,6 @@ class IntegerSet:
     def symmetric_difference_update(self, other):
         self ^= other
         return self
+
+    def add(self, element):
+        self |= IntegerSet((element, element))
