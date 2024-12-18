@@ -115,11 +115,20 @@ class IntegerSet:
         """
         Does self contain other?
         """
-        for interval in self.intervals:
-            if other in interval:
-                return True
+        idx = self.intervals.bisect_left(Interval(other, other))
+        contains = False
 
-        return False
+        try:
+            contains |= other in self.intervals[idx]
+        except IndexError:
+            pass
+
+        try:
+            contains |= other in self.intervals[idx - 1]
+        except IndexError:
+            pass
+
+        return contains
 
     def __le__(self, other):
         """
