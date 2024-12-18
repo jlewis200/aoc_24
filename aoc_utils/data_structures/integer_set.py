@@ -15,17 +15,18 @@ class IntegerSet:
     with a large number of contiguous integers.
     """
 
-    def __init__(self, *ranges):
-        self.intervals = [Interval(*range_) for range_ in ranges]
-        self.intervals = SortedList(self.intervals, key=self._interval_sort_function)
+    def __init__(self, *intervals):
+        intervals = map(lambda interval: Interval(*interval), intervals)
+        self.intervals = SortedList(intervals, key=self._interval_sort_function)
         self.consolidate_intervals()
 
-    @staticmethod
-    def _interval_sort_function(interval):
-        return interval.start
-
     def __repr__(self):
-        return "IntegerSet(" + ", ".join(str(range_) for range_ in self.intervals) + ")"
+        intervals = ", ".join(str(range_) for range_ in self.intervals)
+        return f"IntegerSet({intervals})"
+
+    def __iter__(self):
+        for interval in self.intervals:
+            yield from range(interval.start, interval.end + 1)
 
     def __eq__(self, other):
         """
@@ -37,72 +38,59 @@ class IntegerSet:
         """
         Union.
         """
-        copy = deepcopy(self)
-        copy |= other
-        return copy
+        return self.union(other)
+
+    def __and__(self, other):
+        """
+        Intersection.
+        """
+        return self.intersection(other)
+
+    def __sub__(self, other):
+        """
+        Subtraction.
+        """
+        return self.difference(other)
+
+    def __xor__(self, other):
+        """
+        Symmetric difference.
+        """
+        return self.symmetric_difference(other)
 
     def __ior__(self, other):
         """
         In-place union.
         """
         for other_interval in other.intervals:
-            for interval in self.generate_overlaps(other_interval):
+            for interval in self._generate_overlaps(other_interval):
                 other_interval |= interval
                 self.intervals.remove(interval)
-
             self.intervals.add(other_interval)
-
         self.consolidate_intervals()
 
         return self
-
-    def __and__(self, other):
-        """
-        Intersection.
-        """
-        copy = deepcopy(self)
-        copy &= other
-        return copy
 
     def __iand__(self, other):
         """
         In-place intersection.
         """
         new_intervals = []
-
         for other_interval in other.intervals:
-            for interval in self.generate_overlaps(other_interval):
+            for interval in self._generate_overlaps(other_interval):
                 new_intervals.append(other_interval & interval)
-
         self.intervals = SortedList(new_intervals, key=self._interval_sort_function)
         return self
-
-    def __sub__(self, other):
-        """
-        Subtraction.
-        """
-        copy = deepcopy(self)
-        copy -= other
-        return copy
 
     def __isub__(self, other):
         """
         In-place subtraction.
         """
         for other_interval in other.intervals:
-            for interval in self.generate_overlaps(other_interval):
+            for interval in self._generate_overlaps(other_interval):
                 self.intervals.update(interval - other_interval)
                 self.intervals.remove(interval)
-
         return self
-
-    def __xor__(self, other):
-        """
-        Symmetric difference.
-        """
-        copy = deepcopy(self)
-        copy ^= other
-        return copy
 
     def __ixor__(self, other):
         """
@@ -196,7 +184,9 @@ class IntegerSet:
         return copy
 
     def symmetric_difference(self, other):
-        return self ^ other
+        copy = deepcopy(self)
+        copy ^= other
+        return copy
 
     def issubset(self, other):
         return self <= other
@@ -210,49 +200,54 @@ class IntegerSet:
     def issuperset(self, other):
         return self >= other
 
-    def generate_greater(self, interval_1, idx=None):
-        """
-        Yield overlapping intervals greater than the supplied interval.  Stop
-        iterating at the first non overlapping self interval.
-        """
-        idx = self.intervals.bisect_left(interval_1) if idx is None else idx
-        overlaps = deque()
+    def copy(self):
+        return deepcopy(self)
 
-        while idx < len(self.intervals):
+    def update(self, *others):
+        for other in others:
+            self |= other
+        return self
 
-            interval_0 = self.intervals[idx]
+    def intersection_update(self, *others):
+        for other in others:
+            self &= other
+        return self
 
-            if interval_0.overlap(interval_1):
-                overlaps.append(interval_0)
+    def difference_update(self, *others):
+        for other in others:
+            self -= other
+        return self
 
-            else:
-                break
+    def symmetric_difference_update(self, other):
+        self ^= other
+        return self
 
-            idx += 1
-        yield from overlaps
+    def add(self, element):
+        self |= IntegerSet((element, element))
 
-    def generate_lesser(self, interval_1, idx=None):
-        """
-        Yield overlapping intervals less than the supplied interval.  Stop
-        iterating at the first non overlapping self interval.
-        """
-        idx = self.intervals.bisect_left(interval_1) if idx is None else idx
-        overlaps = deque()
+    def remove(self, element):
+        if element not in self:
+            raise KeyError
+        self -= IntegerSet((element, element))
 
-        while idx > 0:
-            idx -= 1
+    def discard(self, element):
+        self -= IntegerSet((element, element))
 
-            interval_0 = self.intervals[idx]
+    def pop(self):
+        if len(self) == 0:
+            raise KeyError
+        element = self.intervals[0].start
+        self -= IntegerSet((element, element))
+        return element
 
-            if interval_0.overlap(interval_1):
-                overlaps.append(interval_0)
+    def clear(self):
+        self.intervals.clear()
 
-            else:
-                break
+    @staticmethod
+    def _interval_sort_function(interval):
+        return interval.start
 
-        yield from overlaps
-
-    def generate_overlaps(self, interval_1):
+    def _generate_overlaps(self, interval_1):
         """
         Yield every interval of self that overlaps with other interval.  The
         implementation takes advantage of the fact that the intervals are sorted
@@ -261,9 +256,41 @@ class IntegerSet:
         """
         idx = self.intervals.bisect_left(interval_1)
         yield from chain(
-            self.generate_greater(interval_1, idx),
-            self.generate_lesser(interval_1, idx),
+            self._generate_greater(interval_1, idx),
+            self._generate_lesser(interval_1, idx),
         )
+
+    def _generate_greater(self, interval_1, idx=None):
+        """
+        Yield overlapping intervals greater than the supplied interval.  Stop
+        iterating at the first non overlapping self interval.
+        """
+        idx = self.intervals.bisect_left(interval_1) if idx is None else idx
+        overlaps = deque()
+        while idx < len(self.intervals):
+            interval_0 = self.intervals[idx]
+            if interval_0.overlap(interval_1):
+                overlaps.append(interval_0)
+            else:
+                break
+            idx += 1
+        yield from overlaps
+
+    def _generate_lesser(self, interval_1, idx=None):
+        """
+        Yield overlapping intervals less than the supplied interval.  Stop
+        iterating at the first non overlapping self interval.
+        """
+        idx = self.intervals.bisect_left(interval_1) if idx is None else idx
+        overlaps = deque()
+        while idx > 0:
+            idx -= 1
+            interval_0 = self.intervals[idx]
+            if interval_0.overlap(interval_1):
+                overlaps.append(interval_0)
+            else:
+                break
+        yield from overlaps
 
     def consolidate_intervals(self):
         """
@@ -292,55 +319,3 @@ class IntegerSet:
 
         new_intervals.extend(intervals)
         self.intervals = SortedList(new_intervals, key=self._interval_sort_function)
-
-    def copy(self):
-        return deepcopy(self)
-
-    def update(self, *others):
-        for other in others:
-            self |= other
-
-        return self
-
-    def intersection_update(self, *others):
-        for other in others:
-            self &= other
-
-        return self
-
-    def difference_update(self, *others):
-        for other in others:
-            self -= other
-
-        return self
-
-    def symmetric_difference_update(self, other):
-        self ^= other
-        return self
-
-    def add(self, element):
-        self |= IntegerSet((element, element))
-
-    def remove(self, element):
-        if element not in self:
-            raise KeyError
-
-        self -= IntegerSet((element, element))
-
-    def discard(self, element):
-        self -= IntegerSet((element, element))
-
-    def pop(self):
-        if len(self) == 0:
-            raise KeyError
-
-        element = self.intervals[0].start
-        self -= IntegerSet((element, element))
-        return element
-
-    def clear(self):
-        self.intervals.clear()
-
-    def __iter__(self):
-        for interval in self.intervals:
-            yield from range(interval.start, interval.end + 1)
