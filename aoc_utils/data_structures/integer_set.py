@@ -329,3 +329,11 @@ class IntegerSet:
 
     def discard(self, element):
         self -= IntegerSet((element, element))
+
+    def pop(self):
+        if len(self) == 0:
+            raise KeyError
+
+        element = self.intervals[0].start
+        self -= IntegerSet((element, element))
+        return element

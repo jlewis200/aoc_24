@@ -329,3 +329,10 @@ class TestMiscellaneous(unittest.TestCase):
         self.assertEqual(set_0, IntegerSet((0, 4), (6, 10)))
         set_0.discard(11)
         self.assertEqual(set_0, IntegerSet((0, 4), (6, 10)))
+
+    def test_pop(self):
+        set_0 = IntegerSet((0, 1))
+        self.assertIn(set_0.pop(), (0, 1))
+        self.assertIn(set_0.pop(), (0, 1))
+        with self.assertRaises(KeyError):
+            set_0.pop()
