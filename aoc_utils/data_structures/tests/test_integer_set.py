@@ -315,3 +315,10 @@ class TestMiscellaneous(unittest.TestCase):
         self.assertEqual(set_0, IntegerSet((0, 10), (12, 12)))
         set_0.add(11)
         self.assertEqual(set_0, IntegerSet((0, 12)))
+
+    def test_remove(self):
+        set_0 = IntegerSet((0, 10))
+        set_0.remove(5)
+        self.assertEqual(set_0, IntegerSet((0, 4), (6, 10)))
+        with self.assertRaises(KeyError):
+            set_0.remove(11)

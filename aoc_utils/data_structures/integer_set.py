@@ -320,3 +320,9 @@ class IntegerSet:
 
     def add(self, element):
         self |= IntegerSet((element, element))
+
+    def remove(self, element):
+        if element not in self:
+            raise KeyError
+
+        self -= IntegerSet((element, element))
