@@ -336,3 +336,8 @@ class TestMiscellaneous(unittest.TestCase):
         self.assertIn(set_0.pop(), (0, 1))
         with self.assertRaises(KeyError):
             set_0.pop()
+
+    def test_clear(self):
+        set_0 = IntegerSet((0, 1))
+        set_0.clear()
+        self.assertEqual(set_0, IntegerSet())

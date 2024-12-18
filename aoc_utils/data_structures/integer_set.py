@@ -337,3 +337,6 @@ class IntegerSet:
         element = self.intervals[0].start
         self -= IntegerSet((element, element))
         return element
+
+    def clear(self):
+        self.intervals.clear()
