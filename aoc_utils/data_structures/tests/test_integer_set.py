@@ -174,6 +174,16 @@ class TestMiscellaneous(unittest.TestCase):
         self.assertNotIn(19, set_0)
         self.assertNotIn(31, set_0)
 
+    def test_contains_empty_set(self):
+        """
+        Ensure an empty set can be checked.
+        """
+        set_0 = IntegerSet()
+        self.assertNotIn(-1, set_0)
+        self.assertNotIn(11, set_0)
+        self.assertNotIn(19, set_0)
+        self.assertNotIn(31, set_0)
+
     def test_isdisjoint(self):
         """
         Ensure isdisjoint return true if no common elements, and false if
