@@ -291,3 +291,10 @@ class TestMiscellaneous(unittest.TestCase):
         set_0.difference_update(IntegerSet((-10, 1)), IntegerSet((9, 20)))
         self.assertEqual(set_0, IntegerSet((2, 8)))
         self.assertEqual(id(set_0), id_0)
+
+    def test_symmetric_difference_update(self):
+        set_0 = IntegerSet((0, 20))
+        id_0 = id(set_0)
+        set_0.symmetric_difference_update(IntegerSet((10, 30)))
+        self.assertEqual(set_0, IntegerSet((0, 9), (21, 30)))
+        self.assertEqual(id(set_0), id_0)
