@@ -326,3 +326,6 @@ class IntegerSet:
             raise KeyError
 
         self -= IntegerSet((element, element))
+
+    def discard(self, element):
+        self -= IntegerSet((element, element))

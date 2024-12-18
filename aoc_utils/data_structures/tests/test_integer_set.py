@@ -322,3 +322,10 @@ class TestMiscellaneous(unittest.TestCase):
         self.assertEqual(set_0, IntegerSet((0, 4), (6, 10)))
         with self.assertRaises(KeyError):
             set_0.remove(11)
+
+    def test_discard(self):
+        set_0 = IntegerSet((0, 10))
+        set_0.discard(5)
+        self.assertEqual(set_0, IntegerSet((0, 4), (6, 10)))
+        set_0.discard(11)
+        self.assertEqual(set_0, IntegerSet((0, 4), (6, 10)))
