@@ -101,20 +101,22 @@ class IntegerSet:
         self.consolidate_intervals()
         return self
 
-    def __contains__(self, other):
+    def __contains__(self, element):
         """
-        Does self contain other?
+        Check if self contain element.  Treat the element as a set of length
+        one.  Perform a bisection to find the insertion point.  Check the
+        interval to the left and right for membership.
         """
-        idx = self.intervals.bisect_left(Interval(other, other))
+        idx = self.intervals.bisect_left(Interval(element, element))
         contains = False
 
         try:
-            contains |= other in self.intervals[idx]
+            contains |= element in self.intervals[idx]
         except IndexError:
             pass
 
         try:
-            contains |= other in self.intervals[idx - 1]
+            contains |= element in self.intervals[idx - 1]
         except IndexError:
             pass
 
@@ -122,25 +124,30 @@ class IntegerSet:
 
     def __le__(self, other):
         """
-        Return is self a subset of other.
+        Check if self is a subset of other.  Self is a subset of other if the
+        intersection of self and other is the same size as self.
         """
         return len(self) == len(self & other)
 
     def __lt__(self, other):
         """
-        Return is self a proper subset of other.
+        Check if self is a proper subset of other.  Self is a proper subset of
+        other if it is a subset of other, and self is not equal to other.
         """
         return self <= other and self != other
 
     def __ge__(self, other):
         """
-        Return is self a superset of other.
+        Check if self is a superset of other.  Self is a superset of other if
+        the intersection of self and other is the same size as self.
         """
         return len(other) == len(other & self)
 
     def __gt__(self, other):
         """
-        Return is self a proper superset of other.
+        Check if self is a proper superset of other.  Self is a proper superset
+        of other if it is a superset of other, and self is not equal to other.
+
         """
         return self >= other and self != other
 
@@ -155,10 +162,8 @@ class IntegerSet:
         self | other_0 | other_1 | ...
         """
         copy = deepcopy(self)
-
         for other in others:
             copy |= other
-
         return copy
 
     def intersection(self, *others):
@@ -166,10 +171,8 @@ class IntegerSet:
         self & other_0 & other_1 & ...
         """
         copy = deepcopy(self)
-
         for other in others:
             copy &= other
-
         return copy
 
     def difference(self, *others):
@@ -177,13 +180,14 @@ class IntegerSet:
         self - other_0 - other_1 - ...
         """
         copy = deepcopy(self)
-
         for other in others:
             copy -= other
-
         return copy
 
     def symmetric_difference(self, other):
+        """
+        self ^ other
+        """
         copy = deepcopy(self)
         copy ^= other
         return copy
@@ -204,28 +208,42 @@ class IntegerSet:
         return deepcopy(self)
 
     def update(self, *others):
+        """
+        In-place union with multiple sets.
+        """
         for other in others:
             self |= other
-        return self
 
     def intersection_update(self, *others):
+        """
+        In-place intersection with multiple sets.
+        """
         for other in others:
             self &= other
-        return self
 
     def difference_update(self, *others):
+        """
+        In-place difference with multiple sets.
+        """
         for other in others:
             self -= other
-        return self
 
     def symmetric_difference_update(self, other):
+        """
+        In-place symmetric difference.
+        """
         self ^= other
-        return self
 
     def add(self, element):
+        """
+        Add a new integer to the set.
+        """
         self |= IntegerSet((element, element))
 
     def remove(self, element):
+        """
+        Remove an integer from the set.  Raise KeyError if it isn't present.
+        """
         if element not in self:
             raise KeyError
         self -= IntegerSet((element, element))
