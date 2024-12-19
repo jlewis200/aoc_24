@@ -51,7 +51,6 @@ def is_solveable(pattern, trie, cache):
     if len(pattern) == 0:
         return True
 
-    total = 0
     node = trie
 
     for idx in range(len(pattern)):
