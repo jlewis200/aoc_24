@@ -49,7 +49,7 @@ def is_solveable(pattern, trie, cache):
         return cache[pattern]
 
     if len(pattern) == 0:
-        return 1
+        return True
 
     total = 0
     node = trie
