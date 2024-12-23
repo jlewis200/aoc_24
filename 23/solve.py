@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
 
-import re
-import math
-import itertools
-import numpy as np
 import networkx as nx
 
 
-def solve(parsed):
-    breakpoint()
+def solve(graph):
+    total = 0
+
+    for cycle in nx.simple_cycles(graph, 3):
+        if len(cycle) == 3 and any(computer.startswith("t") for computer in cycle):
+            total += 1
+
+    return total
 
 
 def parse(lines):
-    parsed = []
+    graph = nx.Graph()
 
     for line in lines:
-        parsed.append(line)  # do something more useful here
+        src, dst = line.strip().split("-")
+        graph.add_edge(src, dst)
 
-    return parsed
+    return graph
 
 
 def read_file(filename):
@@ -33,5 +36,5 @@ def main(filename, expected=None):
 
 
 if __name__ == "__main__":
-    main("test_0.txt", None)
+    main("test_0.txt", 7)
     main("input.txt")
