@@ -204,7 +204,7 @@ def get_correct_combination(circuit, swap_candidates):
             circuit.swap(*swap)
 
 
-def get_invalid_bits(circuit, n_trials=200):
+def get_invalid_bits(circuit, n_trials=100):
     """
     Check if a circuit is adding correctly by checking a number of random
     inputs.  Return true if all trials succeed.
@@ -231,12 +231,8 @@ def get_invalid_bits(circuit, n_trials=200):
         expected = x + y
 
         if actual != expected:
-            diff = actual ^ expected  # produces 1 where bits differ
-
-            for idx, bit in enumerate(bin(diff)[::-1]):
-                if bit == "1":
-                    invalid_bits.add(idx)
-                    break
+            diff = actual ^ expected
+            invalid_bits.add((diff & -diff).bit_length() - 1)
 
     return invalid_bits
 
