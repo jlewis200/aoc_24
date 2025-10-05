@@ -1,5 +1,5 @@
 """
-Datastructures collection.
+Interval Data Structure.
 """
 
 
@@ -118,25 +118,43 @@ class Interval:
         return (self - other) + (other - self)
 
     def isdisjoint(self, other):
+        """
+        Check for overlap.
+        """
         return not self.overlap(other)
 
     def issubset(self, other):
+        """
+        Method version of <= operator.
+        """
         return self <= other
 
     def issuperset(self, other):
+        """
+        Method version of >= operator.
+        """
         return self >= other
 
     def union(self, *others):
+        """
+        Method version of |=, with support for multiple other Intervals.
+        """
         for other in others:
             self |= other
         return self
 
     def intersection(self, *others):
+        """
+        Method version of &=, with support for multiple other Intervals.
+        """
         for other in others:
             self &= other
         return self
 
     def difference(self, *others):
+        """
+        Method version of -, with support for multiple other Intervals.
+        """
         left_operands = [self]
 
         for other in others:
@@ -150,6 +168,9 @@ class Interval:
         return tuple(left_operands)
 
     def symmetric_difference(self, other):
+        """
+        Method version of ^ operator.
+        """
         return self ^ other
 
     def _orient_endpoints(self, start, end):
@@ -158,6 +179,9 @@ class Interval:
         return start, end
 
     def overlap(self, other):
+        """
+        Checks to see if any portion of the interval is overlapping.
+        """
         return (
             self.start in other
             or self.end in other
@@ -174,8 +198,14 @@ class Interval:
             raise ValueError("Intervals {self} and {other} don't overlap.")
 
     def increasing(self):
+        """
+        Checks to see if the instance's values are increasing.
+        """
         return self.end > self.start
 
     @staticmethod
     def swap(value_0, value_1):
+        """
+        Swaps two values.
+        """
         return value_1, value_0
