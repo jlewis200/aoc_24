@@ -349,3 +349,22 @@ class TestMiscellaneous(unittest.TestCase):
             elements.add(element)
 
         self.assertEqual(elements, {0, 1, 2, 10, 11, 12})
+
+
+class TestConsolidation(unittest.TestCase):
+
+    def test_increasing_order(self):
+        """
+        Test consolidation when overlapping intervals are in increasing order.
+        start is shared, end is not.
+        """
+        set_0 = IntegerSet((0, 10), (0, 20))
+        self.assertEqual(set_0, IntegerSet((0, 20)))
+
+    def test_decreasing_order(self):
+        """
+        Test consolidation when overlapping intervals are in decreasing order.
+        start is shared, end is not.
+        """
+        set_0 = IntegerSet((0, 20), (0, 10))
+        self.assertEqual(set_0, IntegerSet((0, 20)))
