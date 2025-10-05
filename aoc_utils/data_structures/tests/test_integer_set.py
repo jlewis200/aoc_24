@@ -484,6 +484,9 @@ class TestMiscellaneous(unittest.TestCase):
 
 
 class TestConsolidation(unittest.TestCase):
+    """
+    Test the consolidation() function.
+    """
 
     def test_increasing_order(self):
         """
