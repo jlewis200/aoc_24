@@ -12,13 +12,18 @@ from .interval import Interval
 class IntervalSortAdapter(Interval):
     """
     This class adapts Interval in a way that is sortable by SortedList key
-    function.
+    function.  The Interval class treats __lt__ (<) as a subset test, but we
+    want to sort the intervals based on start/end so we can binary search
+    later.  This class overrides the __lt__ method so they can be sorted.
     """
 
     def __init__(self, interval):
         super().__init__(interval.start, interval.end)
 
     def __lt__(self, other):
+        """
+        Compare primarily based on start, use end as a tie-breaker.
+        """
         if self.start == other.start:
             return self.end < other.end
 
