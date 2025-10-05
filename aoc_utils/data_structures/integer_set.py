@@ -1,5 +1,5 @@
 """
-Datastructures collection.
+IntegerSet datastructure.  A sparse representation of sets of integers.
 """
 
 from itertools import chain
@@ -214,6 +214,9 @@ class IntegerSet:
         return copy
 
     def issubset(self, other):
+        """
+        Method version of <= operator.
+        """
         return self <= other
 
     def isdisjoint(self, other):
@@ -223,9 +226,15 @@ class IntegerSet:
         return len(self & other) == 0
 
     def issuperset(self, other):
+        """
+        Method version of >= operator.
+        """
         return self >= other
 
     def copy(self):
+        """
+        Return a copy.
+        """
         return deepcopy(self)
 
     def update(self, *others):
@@ -270,9 +279,15 @@ class IntegerSet:
         self -= IntegerSet((element, element))
 
     def discard(self, element):
+        """
+        Remove specified element.
+        """
         self -= IntegerSet((element, element))
 
     def pop(self):
+        """
+        Remove/return an arbitrary element.
+        """
         if len(self) == 0:
             raise KeyError
         element = self.intervals[0].start
@@ -280,6 +295,9 @@ class IntegerSet:
         return element
 
     def clear(self):
+        """
+        Remove all elements.
+        """
         self.intervals.clear()
 
     @staticmethod
@@ -337,7 +355,7 @@ class IntegerSet:
 
         Ex:
         >>> iset = IntegerSet((0, 10), (11, 20))
-        >>> iset.consolidate_intervals()
+        >>> # iset.consolidate_intervals() called in the constructor
         >>> iset
         IntegerSet((0, 20))
         """
