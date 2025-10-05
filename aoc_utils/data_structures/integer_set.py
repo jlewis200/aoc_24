@@ -9,6 +9,22 @@ from sortedcontainers import SortedList
 from .interval import Interval
 
 
+class IntervalSortAdapter(Interval):
+    """
+    This class adapts Interval in a way that is sortable by SortedList key
+    function.
+    """
+
+    def __init__(self, interval):
+        super().__init__(interval.start, interval.end)
+
+    def __lt__(self, other):
+        if self.start == other.start:
+            return self.end < other.end
+
+        return self.start < other.start
+
+
 class IntegerSet:
     """
     Set of integers with a sparse implementation.  This is suitable for sets
@@ -263,7 +279,7 @@ class IntegerSet:
 
     @staticmethod
     def _interval_sort_function(interval):
-        return interval.start
+        return IntervalSortAdapter(interval)
 
     def _generate_overlaps(self, interval_1):
         """
