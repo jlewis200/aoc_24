@@ -503,3 +503,11 @@ class TestConsolidation(unittest.TestCase):
         """
         set_0 = IntegerSet((0, 20), (0, 10))
         self.assertEqual(set_0, IntegerSet((0, 20)))
+
+    def test_duplicates_in_constructor(self):
+        """
+        Test consolidation when overlapping intervals are in increasing order.
+        start is shared, end is not.
+        """
+        set_0 = IntegerSet((0, 10), (0, 20), (0, 10), (0, 20))
+        self.assertEqual(set_0, IntegerSet((0, 20)))

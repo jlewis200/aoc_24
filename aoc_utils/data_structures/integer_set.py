@@ -37,7 +37,8 @@ class IntegerSet:
     """
 
     def __init__(self, *intervals):
-        intervals = map(lambda interval: Interval(*interval), intervals)
+
+        intervals = set(map(lambda interval: Interval(*interval), intervals))
         self.intervals = SortedList(intervals, key=self._interval_sort_function)
         self.consolidate_intervals()
 
