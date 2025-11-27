@@ -1,82 +1,29 @@
 #!/usr/bin/env python3
 
 import numpy as np
+from aoc_data_structures import VectorTuple
+from aoc_data_structures.grid_helpers import parse
 
 
-class VectorTuple(tuple):
-    """
-    This class replicates vectorized operations of numpy arrays, with the
-    advantage that it's hashable.
-    """
-
-    def __add__(self, other):
-        return VectorTuple(
-            self_element + other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __sub__(self, other):
-        return VectorTuple(
-            self_element - other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __mul__(self, other):
-        return VectorTuple(
-            self_element * other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __truediv__(self, other):
-        return VectorTuple(
-            self_element / other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def within_range(self, *ranges):
-        return all(element in range_ for element, range_ in zip(self, ranges))
-
-
-def solve(board):
+def solve(grid):
     score = 0
 
-    for coord in np.argwhere(board == 0):
+    for coord in np.argwhere(grid == 0):
         terminals = set()
-        dfs(VectorTuple(coord), board, terminals)
+        dfs(VectorTuple(coord), grid, terminals)
         score += len(terminals)
 
     return score
 
 
-def dfs(coord, board, terminals):
-    if board[coord] == 9:
+def dfs(coord, grid, terminals):
+    if grid[coord] == 9:
         terminals.add(coord)
         return
 
-    for adjacency in adjacencies(coord, board):
-        if board[adjacency] - board[coord] == 1:
-            dfs(adjacency, board, terminals)
-
-
-def adjacencies(coord, board):
-    for delta in (
-        VectorTuple((1, 0)),
-        VectorTuple((-1, 0)),
-        VectorTuple((0, 1)),
-        VectorTuple((0, -1)),
-    ):
-        next_pos = coord + delta
-        if next_pos.within_range(range(board.shape[0]), range(board.shape[1])):
-            yield next_pos
-
-
-def parse(lines):
-    parsed = []
-
-    for line in lines:
-        parsed.append(list(map(int, line.strip())))
-
-    return np.array(parsed)
+    for adjacency in coord.orthogonals(grid):
+        if grid[adjacency] - grid[coord] == 1:
+            dfs(adjacency, grid, terminals)
 
 
 def read_file(filename):
@@ -85,7 +32,7 @@ def read_file(filename):
 
 
 def main(filename, expected=None):
-    result = solve(parse(read_file(filename)))
+    result = solve(parse(read_file(filename)).astype(int))
     print(result)
     if expected is not None:
         assert result == expected
