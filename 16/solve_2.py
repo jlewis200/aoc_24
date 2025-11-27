@@ -3,47 +3,8 @@
 import numpy as np
 from collections import deque, defaultdict
 from dataclasses import dataclass
-
-
-class VectorTuple(tuple):
-    """
-    This class replicates vectorized operations of numpy arrays, with the
-    advantage that it's hashable.
-    """
-
-    def __new__(cls, *args):
-        if len(args) == 1 and not isinstance(args[0], tuple):
-            args = args[0]
-        return tuple.__new__(VectorTuple, args)
-
-    def __add__(self, other):
-        return VectorTuple(
-            self_element + other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __sub__(self, other):
-        return VectorTuple(
-            self_element - other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def within_range(self, *ranges):
-        return all(element in range_ for element, range_ in zip(self, ranges))
-
-    def orthogonals(self, board):
-        """
-        Generate E, N, W, S adjacencies.
-        """
-        for delta in (
-            VectorTuple(0, 1),
-            VectorTuple(-1, 0),
-            VectorTuple(0, -1),
-            VectorTuple(1, 0),
-        ):
-            next_pos = self + delta
-            if next_pos.within_range(range(board.shape[0]), range(board.shape[1])):
-                yield next_pos
+from aoc_data_structures import VectorTuple
+from aoc_data_structures.grid_helpers import grid_str, parse
 
 
 @dataclass
@@ -123,24 +84,7 @@ def print_board(board, path_coords):
     for coord in path_coords:
         board[coord] = "O"
     board[board == "."] = " "
-    print(board_str(board))
-
-
-def board_str(board):
-    """
-    Return the string representation of a numpy array where each element can be
-    represented as a single character.
-    """
-    return "\n".join("".join(row) for row in board)
-
-
-def parse(lines):
-    board = []
-
-    for line in lines:
-        board.append(list(line.strip()))
-
-    return np.array(board)
+    print(grid_str(board))
 
 
 def read_file(filename):
