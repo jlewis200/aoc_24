@@ -5,30 +5,7 @@ from os import environ
 import numpy as np
 from dataclasses import dataclass
 from time import sleep
-
-
-class VectorTuple(tuple):
-    """
-    This class replicates vectorized operations of numpy arrays, with the
-    advantage that it's hashable.
-    """
-
-    def __new__(self, *args):
-        if len(args) == 1 and not isinstance(args[0], tuple):
-            args = args[0]
-        return tuple.__new__(VectorTuple, args)
-
-    def __add__(self, other):
-        return VectorTuple(
-            self_element + other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __mul__(self, other):
-        return VectorTuple(
-            self_element * other_element
-            for self_element, other_element in zip(self, other)
-        )
+from aoc_data_structures import VectorTuple
 
 
 @dataclass
