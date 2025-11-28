@@ -4,51 +4,7 @@ from re import fullmatch
 from dataclasses import dataclass
 from collections import defaultdict
 from math import prod
-
-
-class VectorTuple(tuple):
-    """
-    This class replicates vectorized operations of numpy arrays, with the
-    advantage that it's hashable.
-    """
-
-    def __new__(self, *args):
-        if len(args) == 1 and not isinstance(args[0], tuple):
-            args = args[0]
-        return tuple.__new__(VectorTuple, args)
-
-    def __add__(self, other):
-        return VectorTuple(
-            self_element + other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __sub__(self, other):
-        return VectorTuple(
-            self_element - other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __mul__(self, other):
-        return VectorTuple(
-            self_element * other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __truediv__(self, other):
-        return VectorTuple(
-            self_element / other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __mod__(self, other):
-        return VectorTuple(
-            self_element % other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def within_range(self, *ranges):
-        return all(element in range_ for element, range_ in zip(self, ranges))
+from aoc_data_structures import VectorTuple
 
 
 @dataclass
@@ -61,11 +17,11 @@ class Robot:
 
 
 def solve(robots, height, width):
-    board_size = VectorTuple(height, width)
+    grid_size = VectorTuple(height, width)
 
     for robot in robots:
         robot.position += robot.velocity * VectorTuple(100, 100)
-        robot.position %= board_size
+        robot.position %= grid_size
 
     return prod(get_quadrant_counts(robots, height, width))
 
@@ -99,7 +55,7 @@ def parse(lines):
 
     for line in lines:
         match = fullmatch(
-            "p=(?P<x>\d+),(?P<y>\d+) v=(?P<dx>.+),(?P<dy>.+)", line.strip()
+            r"p=(?P<x>\d+),(?P<y>\d+) v=(?P<dx>.+),(?P<dy>.+)", line.strip()
         )
         parsed.add(
             Robot(

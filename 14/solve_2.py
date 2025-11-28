@@ -5,69 +5,8 @@ from dataclasses import dataclass
 from itertools import chain
 from collections import deque
 import numpy as np
-
-
-class VectorTuple(tuple):
-    """
-    This class replicates vectorized operations of numpy arrays, with the
-    advantage that it's hashable.
-    """
-
-    def __new__(self, *args):
-        if len(args) == 1 and not isinstance(args[0], tuple):
-            args = args[0]
-        return tuple.__new__(VectorTuple, args)
-
-    def __add__(self, other):
-        return VectorTuple(
-            self_element + other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __sub__(self, other):
-        return VectorTuple(
-            self_element - other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __mul__(self, other):
-        return VectorTuple(
-            self_element * other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __truediv__(self, other):
-        return VectorTuple(
-            self_element / other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __mod__(self, other):
-        return VectorTuple(
-            self_element % other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def within_range(self, *ranges):
-        return all(element in range_ for element, range_ in zip(self, ranges))
-
-    def adjacencies(self):
-        for delta in (
-            VectorTuple(1, 0),
-            VectorTuple(-1, 0),
-            VectorTuple(0, 1),
-            VectorTuple(0, -1),
-        ):
-            yield self + delta
-
-    def diagonals(self):
-        for delta in (
-            VectorTuple(1, 1),
-            VectorTuple(-1, -1),
-            VectorTuple(-1, 1),
-            VectorTuple(1, -1),
-        ):
-            yield self + delta
+from aoc_data_structures import VectorTuple
+from aoc_data_structures.grid_helpers import grid_str
 
 
 @dataclass
@@ -75,9 +14,9 @@ class Robot:
     position: VectorTuple
     velocity: VectorTuple
 
-    def step(self, board_size):
+    def step(self, grid_size):
         self.position += self.velocity
-        self.position %= board_size
+        self.position %= grid_size
 
     def __hash__(self):
         return hash(self.position) + hash(self.velocity)
@@ -88,23 +27,23 @@ def solve(robots, height, width):
     Repeatedly step until over half of the robots are adjacent to another
     robot.
     """
-    board_size = VectorTuple(height, width)
+    grid_size = VectorTuple(height, width)
     step = 0
     most = len(robots) / 2  # over half seems like a good definition of "most"
 
-    while get_total_contiguous(robots, board_size) < most:
+    while get_total_contiguous(robots, grid_size) < most:
         step += 1
 
         for robot in robots:
-            robot.step(board_size)
+            robot.step(grid_size)
 
         print(f"step:  {step}")
 
-    print(str_board(get_board(robots, height, width)))
+    print(grid_str(get_grid(robots, height, width)))
     return step
 
 
-def get_total_contiguous(robots, board_size):
+def get_total_contiguous(robots, grid_size):
     """
     Find the number of contiguous robots (contiguous - 1 technically).
     """
@@ -112,12 +51,12 @@ def get_total_contiguous(robots, board_size):
     contiguous_counts = []
 
     while len(positions) > 0:
-        contiguous_counts.append(count_contiguous(positions, board_size))
+        contiguous_counts.append(count_contiguous(positions, grid_size))
 
     return sum(contiguous_counts)
 
 
-def count_contiguous(positions, board_size):
+def count_contiguous(positions, grid_size):
     """
     BFS from an arbitrary starting robot.  If an adjacency is another robot
     position, increment the counter.
@@ -128,8 +67,8 @@ def count_contiguous(positions, board_size):
     while len(queue) > 0:
         position = queue.popleft()
 
-        for adjacency in position.adjacencies():
-            adjacency %= board_size
+        for adjacency in position.orthogonals(None):
+            adjacency %= grid_size
 
             if adjacency in positions:
                 positions.remove(adjacency)
@@ -139,22 +78,14 @@ def count_contiguous(positions, board_size):
     return contiguous
 
 
-def get_board(robots, height, width):
-    board = np.full((height, width), " ")
+def get_grid(robots, height, width):
+    grid = np.full((height, width), " ")
 
     for robot in robots:
-        board[robot.position] = "#"
+        grid[robot.position] = "#"
 
-    return board
+    return grid
 
-
-def str_board(board):
-    board_str = ""
-    for row in board:
-        for col in row:
-            board_str += f"{col}"
-        board_str += "\n"
-    return board_str
 
 
 def parse(lines):
@@ -162,7 +93,7 @@ def parse(lines):
 
     for line in lines:
         match = fullmatch(
-            "p=(?P<x>\d+),(?P<y>\d+) v=(?P<dx>.+),(?P<dy>.+)", line.strip()
+            r"p=(?P<x>\d+),(?P<y>\d+) v=(?P<dx>.+),(?P<dy>.+)", line.strip()
         )
         parsed.add(
             Robot(
