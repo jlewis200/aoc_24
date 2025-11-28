@@ -3,62 +3,12 @@
 import itertools
 import numpy as np
 from collections import deque
+from aoc_data_structures import VectorTuple
 
 
-class VectorTuple(tuple):
-    """
-    This class replicates vectorized operations of numpy arrays, with the
-    advantage that it's hashable.
-    """
-
-    def __new__(self, *args):
-        if len(args) == 1 and not isinstance(args[0], tuple):
-            args = args[0]
-        return tuple.__new__(VectorTuple, args)
-
-    def __add__(self, other):
-        return VectorTuple(
-            self_element + other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __sub__(self, other):
-        return VectorTuple(
-            self_element - other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __mul__(self, other):
-        return VectorTuple(
-            self_element * other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __truediv__(self, other):
-        return VectorTuple(
-            self_element / other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def within_range(self, *ranges):
-        return all(element in range_ for element, range_ in zip(self, ranges))
-
-
-def adjacencies(coord, board):
-    for delta in (
-        VectorTuple(1, 0),
-        VectorTuple(-1, 0),
-        VectorTuple(0, 1),
-        VectorTuple(0, -1),
-    ):
-        next_pos = coord + delta
-        if next_pos.within_range(range(board.shape[0]), range(board.shape[1])):
-            yield next_pos
-
-
-def solve(board):
-    plots = get_plots(board)
-    perimeters = get_perimeters(board, plots)
+def solve(grid):
+    plots = get_plots(grid)
+    perimeters = get_perimeters(grid, plots)
     total = 0
 
     for plot, perimeter in zip(plots, perimeters):
@@ -67,55 +17,55 @@ def solve(board):
     return total
 
 
-def get_perimeters(board, plots):
+def get_perimeters(grid, plots):
     perimeters = []
 
     for plot in plots:
         coord = plot.copy().pop()
-        perimeters.append(get_perimeter(board, plot))
+        perimeters.append(get_perimeter(grid, plot))
 
     return perimeters
 
 
-def get_perimeter(board, plot):
+def get_perimeter(grid, plot):
     perimeter = list()
-    plot_type = board[plot.copy().pop()]
+    plot_type = grid[plot.copy().pop()]
 
     for coord in plot:
-        perimeter.extend(get_external_adjacencies(coord, board, plot_type))
+        perimeter.extend(get_external_adjacencies(coord, grid, plot_type))
 
     return perimeter
 
 
-def get_external_adjacencies(coord, board, plot_type):
+def get_external_adjacencies(coord, grid, plot_type):
     external_adjacencies = []
 
-    for adjacency in adjacencies(coord, board):
-        if board[adjacency] != plot_type:
+    for adjacency in coord.orthogonals(grid):
+        if grid[adjacency] != plot_type:
             external_adjacencies.append(coord)
 
     return external_adjacencies
 
 
-def get_plots(board):
+def get_plots(grid):
     plots = []
     visited = set()
 
-    for y, x in itertools.product(range(board.shape[0]), range(board.shape[1])):
+    for y, x in itertools.product(range(grid.shape[0]), range(grid.shape[1])):
         coord = VectorTuple(y, x)
 
         # skip visited and padding characters
-        if coord in visited or board[coord] == ".":
+        if coord in visited or grid[coord] == ".":
             continue
 
-        plots.append(get_plot(board, visited, coord))
+        plots.append(get_plot(grid, visited, coord))
 
     return plots
 
 
-def get_plot(board, visited, coord):
+def get_plot(grid, visited, coord):
     plot = set()
-    plot_type = board[coord]
+    plot_type = grid[coord]
     queue = deque([coord])
 
     while len(queue) > 0:
@@ -124,10 +74,10 @@ def get_plot(board, visited, coord):
         if coord in visited:
             continue
 
-        if board[coord] == plot_type:
+        if grid[coord] == plot_type:
             visited.add(coord)
             plot.add(coord)
-            queue.extend(adjacencies(coord, board))
+            queue.extend(coord.orthogonals(grid))
 
     return plot
 

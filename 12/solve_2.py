@@ -3,54 +3,56 @@
 from itertools import product, chain
 import numpy as np
 from collections import deque
+from aoc_data_structures import VectorTuple
+from aoc_data_structures.grid_helpers import expand_grid
 
 
-def solve(board):
+def solve(grid):
     """
     Get the original plot sizes, relabel plots uniquely to avoid adjacent plot
-    type edge cases, expand the board to avoid internal corridors of size 1
+    type edge cases, expand the grid to avoid internal corridors of size 1
     edge cases.
     """
-    plots = get_plots(board)
+    plots = get_plots(grid)
     plot_lengths = [len(plot) for plot in plots]
-    relabel_plots(board, plots)
-    board = expand_board(board)
+    relabel_plots(grid, plots)
+    grid = expand_grid(grid, 3)
 
-    plots = get_plots(board)
-    perimeters = get_perimeters(board, plots)
+    plots = get_plots(grid)
+    perimeters = get_perimeters(grid, plots)
     total = 0
 
     for plot, perimeter, plot_length in zip(plots, perimeters, plot_lengths):
-        plot_type = board[plot.copy().pop()]
-        total += plot_length * get_edges(board, plot_type, perimeter)
+        plot_type = grid[plot.copy().pop()]
+        total += plot_length * get_edges(grid, plot_type, perimeter)
 
     return total
 
 
-def get_plots(board):
+def get_plots(grid):
     """
     BFS from each coordinate to find contiguous coords of the same plot type.
     """
     plots = []
     visited = set()
 
-    for y, x in product(range(board.shape[0]), range(board.shape[1])):
+    for y, x in product(range(grid.shape[0]), range(grid.shape[1])):
         coord = VectorTuple(y, x)
 
-        if coord in visited or board[coord] == ".":
+        if coord in visited or grid[coord] == ".":
             continue
 
-        plots.append(get_plot(board, visited, coord))
+        plots.append(get_plot(grid, visited, coord))
 
     return plots
 
 
-def get_plot(board, visited, coord):
+def get_plot(grid, visited, coord):
     """
     BFS to find contiguous coords of the same plot type.
     """
     plot = set()
-    plot_type = board[coord]
+    plot_type = grid[coord]
     queue = deque([coord])
 
     while len(queue) > 0:
@@ -59,52 +61,52 @@ def get_plot(board, visited, coord):
         if coord in visited:
             continue
 
-        if board[coord] == plot_type:
+        if grid[coord] == plot_type:
             visited.add(coord)
             plot.add(coord)
-            queue.extend(coord.adjacencies(board))
+            queue.extend(coord.orthogonals(grid))
 
     return plot
 
 
-def get_perimeters(board, plots):
+def get_perimeters(grid, plots):
     perimeters = []
 
     for plot in plots:
-        perimeters.append(get_perimeter(board, plot))
+        perimeters.append(get_perimeter(grid, plot))
 
     return perimeters
 
 
-def get_perimeter(board, plot):
+def get_perimeter(grid, plot):
     """
     Gather the external adjacencies of each plot coordinate.
     """
     perimeter = set()
-    plot_type = board[plot.copy().pop()]
+    plot_type = grid[plot.copy().pop()]
 
     for coord in plot:
-        perimeter |= get_external_adjacencies(coord, board, plot_type)
+        perimeter |= get_external_adjacencies(coord, grid, plot_type)
 
     return perimeter
 
 
-def get_external_adjacencies(coord, board, plot_type):
+def get_external_adjacencies(coord, grid, plot_type):
     """
     Get the external adjacencies of a coordinate, including diagonals.
     """
     external_adjacencies = set()
 
-    for adjacency in chain(coord.adjacencies(board), coord.diagonals(board)):
-        if board[adjacency] != plot_type:
+    for adjacency in chain(coord.orthogonals(grid), coord.diagonals(grid)):
+        if grid[adjacency] != plot_type:
             external_adjacencies.add(coord)
 
     return external_adjacencies
 
 
-def get_edges(board, plot_type, perimeter):
+def get_edges(grid, plot_type, perimeter):
     """
-    Count straightsections of perimeter by counting corners of perimeter.
+    Count straight sections of perimeter by counting corners of perimeter.
     """
     corners = 0
     up_left = VectorTuple(-1, 0), VectorTuple(0, -1)
@@ -129,113 +131,13 @@ def is_corner(coord, perimeter, *deltas):
     return all(coord + delta in perimeter for delta in deltas)
 
 
-def expand_board(board):
-    """
-    Expand the board to handle cases like:
-        EEEEE
-        EXXXX
-        EEEEE
-        EXXXX
-        EEEEE
-
-    which is expanded to
-        EEEEEEEEEEEEEEE
-        EEEEEEEEEEEEEEE
-        EEEEEEEEEEEEEEE
-        EEEXXXXXXXXXXXX
-        EEEXXXXXXXXXXXX
-        EEEXXXXXXXXXXXX
-        EEEEEEEEEEEEEEE
-        EEEEEEEEEEEEEEE
-        EEEEEEEEEEEEEEE
-        EEEXXXXXXXXXXXX
-        EEEXXXXXXXXXXXX
-        EEEXXXXXXXXXXXX
-        EEEEEEEEEEEEEEE
-        EEEEEEEEEEEEEEE
-        EEEEEEEEEEEEEEE
-    """
-    board = np.repeat(board, 3, axis=0)
-    return np.repeat(board, 3, axis=1)
-
-
-def relabel_plots(board, plots):
+def relabel_plots(grid, plots):
     """
     Relabel plots so non-contiguous plots of same type are labeled uniquely.
     """
     for idx, plot in enumerate(plots, start=1):
         for coord in plot:
-            board[coord] = idx
-
-
-def str_board(board):
-    board_str = ""
-    for row in board:
-        for col in row:
-            board_str += f"{col}"
-        board_str += "\n"
-    return board_str
-
-
-class VectorTuple(tuple):
-    """
-    This class replicates vectorized operations of numpy arrays, with the
-    advantage that it's hashable.
-    """
-
-    def __new__(self, *args):
-        if len(args) == 1 and not isinstance(args[0], tuple):
-            args = args[0]
-        return tuple.__new__(VectorTuple, args)
-
-    def __add__(self, other):
-        return VectorTuple(
-            self_element + other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __sub__(self, other):
-        return VectorTuple(
-            self_element - other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __mul__(self, other):
-        return VectorTuple(
-            self_element * other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def __truediv__(self, other):
-        return VectorTuple(
-            self_element / other_element
-            for self_element, other_element in zip(self, other)
-        )
-
-    def within_range(self, *ranges):
-        return all(element in range_ for element, range_ in zip(self, ranges))
-
-    def adjacencies(self, board):
-        for delta in (
-            VectorTuple(1, 0),
-            VectorTuple(-1, 0),
-            VectorTuple(0, 1),
-            VectorTuple(0, -1),
-        ):
-            next_pos = self + delta
-            if next_pos.within_range(range(board.shape[0]), range(board.shape[1])):
-                yield next_pos
-
-    def diagonals(self, board):
-        for delta in (
-            VectorTuple(1, 1),
-            VectorTuple(-1, -1),
-            VectorTuple(-1, 1),
-            VectorTuple(1, -1),
-        ):
-            next_pos = self + delta
-            if next_pos.within_range(range(board.shape[0]), range(board.shape[1])):
-                yield next_pos
+            grid[coord] = idx
 
 
 def parse(lines):
