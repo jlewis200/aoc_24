@@ -2,68 +2,36 @@
 
 from collections import deque
 import numpy as np
+from aoc_data_structures import VectorTuple
+from aoc_data_structures.grid_helpers import parse
 
 
-class Coord:
-
-    def __init__(self, y, x):
-        self.y = int(y)
-        self.x = int(x)
-        self._hash = None
-
-    def __add__(self, other):
-        return Coord(self.y + other.y, self.x + other.x)
-
-    def __sub__(self, other):
-        return Coord(self.y - other.y, self.x - other.x)
-
-    def __mul__(self, other):
-        return Coord(self.y * other, self.x * other)
-
-    def __hash__(self):
-        if self._hash is None:
-            self._hash = (1000003 * self.x) ^ self.y
-        return self._hash
-
-    def __eq__(self, other):
-        if not isinstance(other, Coord):
-            return False
-        return self.y == other.y and self.x == other.x
-
-    def __repr__(self):
-        return f"{self.y}\t{self.x}"
-
-
-def solve(board):
-    coord = Coord(*np.argwhere(board == "^")[0])
-    board[coord.y, coord.x] = "."
+def solve(grid):
+    coord = VectorTuple(*np.argwhere(grid == "^")[0])
+    grid[coord] = "."
     positions = {coord}
 
     for delta in delta_generator():
 
-        while not obstructed(coord + delta, board):
+        while not obstructed(coord + delta, grid):
             coord += delta
             positions.add(coord)
 
-            if not valid_coord(coord + delta, board):
+            if not (coord + delta).valid(grid):
                 return len(positions)
 
 
-def obstructed(coord, board):
-    return board[coord.y, coord.x] == "#"
-
-
-def valid_coord(coord, board):
-    return coord.x in range(board.shape[1]) and coord.y in range(board.shape[0])
+def obstructed(coord, grid):
+    return grid[coord] == "#"
 
 
 def delta_generator():
     deltas = deque(
         [
-            Coord(-1, 0),
-            Coord(0, 1),
-            Coord(1, 0),
-            Coord(0, -1),
+            VectorTuple(-1, 0),
+            VectorTuple(0, 1),
+            VectorTuple(1, 0),
+            VectorTuple(0, -1),
         ]
     )
 
@@ -71,15 +39,6 @@ def delta_generator():
         delta = deltas.popleft()
         deltas.append(delta)
         yield delta
-
-
-def parse(lines):
-    parsed = []
-
-    for line in lines:
-        parsed.append(list(line.strip()))
-
-    return np.array(parsed)
 
 
 def read_file(filename):

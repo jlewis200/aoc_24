@@ -2,59 +2,31 @@
 
 from collections import deque
 import numpy as np
+from aoc_data_structures import VectorTuple
+from aoc_data_structures.grid_helpers import parse
 
 
-class Coord:
-
-    def __init__(self, y, x):
-        self.y = int(y)
-        self.x = int(x)
-        self._hash = None
-
-    def __add__(self, other):
-        return Coord(self.y + other.y, self.x + other.x)
-
-    def __sub__(self, other):
-        return Coord(self.y - other.y, self.x - other.x)
-
-    def __mul__(self, other):
-        return Coord(self.y * other, self.x * other)
-
-    def __hash__(self):
-        if self._hash is None:
-            self._hash = (1000003 * self.x) ^ self.y
-        return self._hash
-
-    def __eq__(self, other):
-        if not isinstance(other, Coord):
-            return False
-        return self.y == other.y and self.x == other.x
-
-    def __repr__(self):
-        return f"{self.y}\t{self.x}"
-
-
-def solve(board):
-    y_guard, x_guard = np.argwhere(board == "^")[0]
+def solve(grid):
+    y_guard, x_guard = np.argwhere(grid == "^")[0]
     total = 0
 
-    for y in range(board.shape[0]):
-        for x in range(board.shape[1]):
-            if (y == y_guard and x == x_guard) or board[y, x] == "#":
+    for y in range(grid.shape[0]):
+        for x in range(grid.shape[1]):
+            if grid[y, x] in ("#", "^"):
                 continue
 
-            board_ = board.copy()
-            board_[y, x] = "#"
+            grid_ = grid.copy()
+            grid_[y, x] = "#"
 
-            if is_loop(board_):
+            if is_loop(grid_):
                 total += 1
 
     return total
 
 
-def is_loop(board):
-    coord = Coord(*np.argwhere(board == "^")[0])
-    board[coord.y, coord.x] = "."
+def is_loop(grid):
+    coord = VectorTuple(map(int, np.argwhere(grid == "^")[0]))
+    grid[coord] = "."
     positions = set((coord,))
 
     for direction in directions_generator():
@@ -62,10 +34,10 @@ def is_loop(board):
             delta = get_delta(direction)
             coord_ = coord + delta
 
-            if not valid_coord(coord_, board):
+            if not coord_.valid(grid):
                 return False
 
-            if obstruction_present(coord_, board):
+            if obstruction_present(coord_, grid):
                 break
 
             sequence = (coord, coord_)
@@ -77,26 +49,21 @@ def is_loop(board):
             coord = coord_
 
 
-def obstruction_present(coord, board):
-    return board[coord.y, coord.x] == "#"
-
-
-def valid_coord(coord, board):
-    return coord.x in range(board.shape[1]) and coord.y in range(board.shape[0])
+def obstruction_present(coord, grid):
+    return grid[coord] == "#"
 
 
 def get_delta(direction):
     match direction:
 
         case "u":
-            return Coord(-1, 0)
-
+            return VectorTuple(-1, 0)
         case "r":
-            return Coord(0, 1)
+            return VectorTuple(0, 1)
         case "d":
-            return Coord(1, 0)
+            return VectorTuple(1, 0)
         case "l":
-            return Coord(0, -1)
+            return VectorTuple(0, -1)
 
 
 def directions_generator():
@@ -107,15 +74,6 @@ def directions_generator():
         direction = directions.popleft()
         directions.append(direction)
         yield direction
-
-
-def parse(lines):
-    parsed = []
-
-    for line in lines:
-        parsed.append(list(line.strip()))
-
-    return np.array(parsed)
 
 
 def read_file(filename):
